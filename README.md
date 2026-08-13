@@ -68,6 +68,24 @@ M1 其實只需要兩個 repo,而這是其中一個。理由不是它多大,是*
 
 這是目前唯一為了複用而提前付的成本,大約 0.5 人週。
 
+## 開發環境
+
+```bash
+pnpm install     # husky 的 hook 會在 prepare 時自動掛上
+pnpm lint        # eslint
+pnpm lint:custom # 這個 repo 的越界檢查,見下面
+pnpm cz          # 互動式產生 commit 訊息
+```
+
+| 時機 | 跑什麼 |
+|---|---|
+| `pre-commit` | `lint-staged`(eslint --fix + prettier)、`lint:custom` |
+| `commit-msg` | `commitlint --edit` |
+
+**`scripts/check-boundaries.mjs` 是這個 repo 專屬的。** 它掃 `src/`,只要出現資料庫連線、賠率/串關/賽程樹這類活動概念,或 `phase === ...` 這種階段判斷,就直接失敗。
+
+ESLint 抓不到這種事 —— 那不是語法問題,是知識跑錯層。而這正是這個 repo 唯一會壞掉的方式。
+
 ## 預定的環境變數
 
 | 變數 | 用途 |

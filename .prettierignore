@@ -1,0 +1,8 @@
+node_modules/
+dist/
+pnpm-lock.yaml
+
+# Markdown 不交給 Prettier。
+# 它會把表格補成等寬、重排清單符號 —— 對中文文件只會製造 diff 噪音,
+# 而這些文件的可讀性本來就靠人看,不是靠對齊。
+*.md
