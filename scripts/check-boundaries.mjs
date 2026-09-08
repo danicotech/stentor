@@ -34,13 +34,40 @@ const FORBIDDEN = [
   },
 ];
 
-const files = globSync('src/**/*.{ts,mts,cts,js,mjs}', { cwd: root });
+/**
+ * 例外標記。
+ *
+ * 只有一種情況該用它:這一行**本身就是在執行這條規則**。
+ * 例如設定載入器要檢查「環境裡有沒有出現 DATABASE_URL」,它必須寫得出那個字。
+ *
+ * 標記寫成**下一行的注解**:`// boundary-guard: <理由>`,豁免緊接著的那一行。
+ * 理由是必要的 —— 一個沒有理由的例外,下一個人只會照抄。
+ */
+const GUARD = /\/\/\s*boundary-guard:\s*\S/;
+
+// 生成的契約碼不掃:它是 proto 的產物,要改也不是改這裡。
+const files = globSync('src/**/*.{ts,mts,cts,js,mjs}', { cwd: root }).filter(
+  (f) => !f.split(/[\\/]/).includes('gen'),
+);
 const violations = [];
+let guarded = 0;
 
 for (const file of files) {
   const lines = readFileSync(join(root, file), 'utf8').split('\n');
+  let exempt = false;
   lines.forEach((line, i) => {
-    if (line.trimStart().startsWith('//')) return;
+    const trimmed = line.trimStart();
+    if (GUARD.test(line)) {
+      // 標記本身放行,並且豁免下一行(只有一行,不會擴散)。
+      exempt = true;
+      guarded += 1;
+      return;
+    }
+    if (exempt) {
+      exempt = false;
+      return;
+    }
+    if (trimmed.startsWith('//')) return;
     for (const rule of FORBIDDEN) {
       if (rule.pattern.test(line)) {
         violations.push({ file, line: i + 1, rule, text: line.trim() });
@@ -50,7 +77,10 @@ for (const file of files) {
 }
 
 if (violations.length === 0) {
-  console.log(`custom lint: 掃了 ${files.length} 個檔案,沒有越界`);
+  console.log(
+    `custom lint: 掃了 ${files.length} 個檔案,沒有越界` +
+      (guarded > 0 ? `(${guarded} 行標了 boundary-guard 例外)` : ''),
+  );
   process.exit(0);
 }
 

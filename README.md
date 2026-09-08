@@ -4,7 +4,8 @@ Discord 互動閘道:把 Discord 的互動翻成活動服務的 API 呼叫,把�
 
 《伊利亞特》裡的傳令官,銅嗓,聲音抵得過五十個人。他只負責喊,不參與決策 —— 這個 repo 的定位就是那樣。
 
-> **現況:骨架階段。** 目錄與職責已經定案,程式碼還沒進來。
+> **現況:M2 實作中。** 路由、渲染、平台指令、活動記錄、公告消費端都在了;
+> `/bind` 與 `/privacy optout` 等 hestia 補上對應的 RPC(見「還缺什麼」)。
 > 設計決策的來源是 [hestia/docs/架構規劃書.md](https://github.com/danicotech/hestia/blob/main/docs/架構規劃書.md)。
 
 ## 這裡最重要的一條規則
@@ -31,17 +32,37 @@ Discord 互動閘道:把 Discord 的互動翻成活動服務的 API 呼叫,把�
 
 `custom_id` 的第一段就是路由鍵。加一個新活動 = 在設定裡註冊一個前綴、指向它的 base URL,**這個 repo 一行都不用改**。
 
-契約本身住在 [hestia/contracts/render/](https://github.com/danicotech/hestia/tree/main/contracts/render),不住這裡 —— 放這裡的話每個新活動都要來改 Bot 的 repo,分 repo 就沒意義了。
+契約本身住在 hestia 的 **`proto/hestia/render/v1/render.proto`**,不住這裡 —— 放這裡的話每個新活動都要來改 Bot 的 repo,分 repo 就沒意義了。
+
+原本規劃寫的是 `hestia/contracts/render/`(手寫的共用型別),改成 proto 是因為專案鐵則 6:**契約自動生成,禁止手寫共用型別**。`src/gen/` 底下的東西全部由 `pnpm gen` 從 hestia 的 proto 產出,進版控但不要手改。
+
+### 加一個活動要做什麼
+
+1. 活動服務實作 `hestia.render.v1.ActivityInteractionService` 的三個 rpc:
+   - `DescribeCommands` —— 交出自己的 slash 指令定義與收的前綴
+   - `HandleCommand` / `HandleComponent` —— 回一個 `RenderResult`
+2. 在 `ACTIVITY_ROUTES` 加一行:`<前綴>=<base URL>`
+3. 跑 `pnpm commands:register`
+
+**這個 repo 一行都不用改。** 這件事有測試盯著:`tests/add-activity.test.ts`。
 
 ## 目錄
 
 ```text
 src/
-├── gateway/     Discord client、interaction 接收、3 秒逾時與 defer 處理
-├── routing/     custom_id / 指令前綴 → 活動服務的對應
-├── render/      渲染契約 → discord.js 的 Embed、Button、Modal
-├── consumers/   訂閱 outbox 事件,發到頻道
-└── config/      前綴註冊表、頻道對應、環境變數
+├── gen/         buf 從 hestia 的 proto 生成的契約(進版控,不要手改)
+├── gateway/     Discord client、互動抽象、3 秒逾時與 defer 處理
+├── routing/     custom_id / 指令前綴 → 目的地的對應
+├── render/      渲染契約 → Discord 的 Embed、Button、Select、Modal
+├── platform/    hestia 的 client;以及 hestia 還沒提供的能力的接縫
+├── activity/    活動服務的 client(依前綴建、快取)
+├── commands/    平台自己的指令與它們的 Discord 定義
+├── activitylog/ voiceStateUpdate / 訊息 / 表情 → hestia 的活動記錄 API
+├── consumers/   outbox 事件 → 頻道推播
+├── announce/    規則頻道的資料告知文案
+├── config/      環境變數、前綴註冊表、頻道對應
+├── shared/      logger
+└── cli/         pnpm commands:register
 tests/
 deploy/
 docs/
@@ -60,7 +81,9 @@ docs/
 
 持 service token 呼叫平台 API,呼叫時帶 `X-Acting-User: discord:<id>` 代理使用者身分,hestia 用 `users.discord_user_id` 對應到帳號。
 
-綁定流程:網頁登入後產生一次性綁定碼 → 在 Discord 輸入 `/bind <碼>` → hestia 寫入對應。
+綁定流程:**沒有綁定碼。** 用 Discord OAuth 登入網頁的那一刻就完成綁定 —— hestia 當場拿到 Discord user id 並建好 `identities`。再要一組碼,是重新證明 OAuth 已經證明過的事;而且 OAuth 的 state 綁在 HttpOnly cookie 上,由 Bot 代開的登入連結沒有對應的 cookie,回呼一定失敗。
+
+所以 `/bind` 只做一件事:回一則 ephemeral 訊息,附上 `WEB_BASE_URL` 的登入頁連結。使用者未綁定時,hestia 的代打會回 `FailedPrecondition`,那時顯示的是同一則指引。
 
 ## 為什麼從第一天就是獨立的 repo
 
@@ -71,11 +94,27 @@ M1 其實只需要兩個 repo,而這是其中一個。理由不是它多大,是*
 ## 開發環境
 
 ```bash
-pnpm install     # husky 的 hook 會在 prepare 時自動掛上
-pnpm lint        # eslint
-pnpm lint:custom # 這個 repo 的越界檢查,見下面
-pnpm cz          # 互動式產生 commit 訊息
+pnpm install            # husky 的 hook 會在 prepare 時自動掛上
+pnpm gen                # 從 ../hestia/proto 生成 src/gen(改完 proto 一定要跑)
+pnpm typecheck          # tsc --noEmit(含 tests/)
+pnpm lint               # eslint
+pnpm lint:custom        # 這個 repo 的越界檢查,見下面
+pnpm test               # node:test,不需要 Discord token 也不需要網路
+pnpm commands:register  # 把 slash 指令註冊到 Discord
+pnpm cz                 # 互動式產生 commit 訊息
 ```
+
+Node 22.18+ 內建型別剝離,所以 `.ts` 直接跑。`--experimental-transform-types`
+是必要的:生成的契約碼有 TS `enum`,strip-only 模式不吃。
+
+`pnpm gen` 的輸入是相對路徑 `../hestia/proto` —— 四個 repo 是兄弟目錄。
+生成結果進版控,所以 CI 與部署不必先簽出 hestia。
+
+### 測試怎麼寫
+
+Discord 的互動物件在 `src/gateway/interaction.ts` 被抽象成純資料介面,
+`adapter.ts` 是唯一認識 discord.js 的地方。所以測試造一個互動 = 造一個物件,
+驗回覆 = 看假 responder 收到什麼。**沒有 token、沒有網路、沒有 Discord。**
 
 | 時機 | 跑什麼 |
 |---|---|
@@ -86,6 +125,17 @@ pnpm cz          # 互動式產生 commit 訊息
 
 ESLint 抓不到這種事 —— 那不是語法問題,是知識跑錯層。而這正是這個 repo 唯一會壞掉的方式。
 
+唯一的例外是行首標了 `// boundary-guard: <理由>` 的下一行,用在「這一行本身就是在執行這條規則」的地方(目前只有一處:設定載入器檢查環境裡有沒有資料庫連線字串)。
+
+## 還缺什麼(等 hestia)
+
+| 功能 | 缺的契約 | 目前行為 |
+|---|---|---|
+| `/privacy optout` / `status` | `MeService.GetPrivacy` / `UpdatePrivacy` | 回「這個功能還沒開放」,並說出缺哪支 RPC |
+| outbox → 頻道 | `NotificationService.PullAnnouncements` / `AckAnnouncements` | 消費端與去重都寫好了,來源是記憶體版的假來源 |
+
+`/daily`、`/balance`、`/shop`、`/bind` 都已經可以用:hestia 的代打白名單(service token + `X-Acting-User` 可呼叫 8 支使用者 RPC)已經落地。
+
 ## 預定的環境變數
 
 | 變數 | 用途 |
@@ -95,7 +145,14 @@ ESLint 抓不到這種事 —— 那不是語法問題,是知識跑錯層。而�
 | `DISCORD_DEV_GUILD_ID` | 開發期把指令只註冊到測試伺服器,生效快 |
 | `PLATFORM_API_URL` | hestia 的位址 |
 | `PLATFORM_SERVICE_TOKEN` | 呼叫平台用的 service token |
-| `ACTIVITY_ROUTES` | 前綴註冊表,`<前綴>=<base URL>`,逗號分隔 |
-| `LOG_LEVEL` | |
+| `WEB_BASE_URL` | 網頁前端位址。`/bind` 的登入連結指向它的 `/login` |
+| `ACTIVITY_ROUTES` | 前綴註冊表,`<前綴>=<base URL>[;public][;update]`,逗號分隔 |
+| `CHANNEL_MAP` | 邏輯頻道名 → channel id,`<名字>=<id>`,逗號分隔 |
+| `DISCORD_MESSAGE_CONTENT_INTENT` | 是否開特權 intent。關掉仍然記則數,只是沒有內容 |
+| `MESSAGE_BATCH_SIZE` / `MESSAGE_FLUSH_MS` | 訊息批次送出的門檻 |
+| `BACKEND_TIMEOUT_MS` | 呼叫後端的逾時 |
+| `LOG_LEVEL` | `debug` / `info` / `warn` / `error` |
+
+完整說明見 [.env.example](.env.example)。
 
 **這份清單裡沒有資料庫連線字串,而且永遠不該有。** 哪天發現需要它,先回頭看是不是有邏輯跑錯層了。

@@ -22,7 +22,9 @@ Discord 互動閘道。銅嗓傳令官 —— 只負責喊,不參與決策。
 
 `custom_id` 的前綴就是路由鍵。**加新活動 = 註冊一個前綴 + 對方實作回傳契約,這個 repo 一行都不用改。**
 
-渲染契約住在 `hestia/contracts/render/`,不住這裡 —— 放這裡的話每個新活動都要改 Bot,分 repo 的意義就沒了。
+渲染契約住在 `hestia/proto/hestia/render/v1/`,不住這裡 —— 放這裡的話每個新活動都要改 Bot,分 repo 的意義就沒了。
+
+(原規劃寫 `hestia/contracts/render/`「手寫的 spec」,2026-09-08 改成 proto:手寫共用型別違反鐵則 6,而且 Go 與 TS 兩端遲早會漂移。)
 
 ## 硬限制
 

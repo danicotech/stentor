@@ -1,0 +1,24 @@
+# 從 hestia 的 proto 生成 TypeScript client。
+#
+# 專案鐵則 6:契約自動生成,禁止手寫共用型別。所以這個 repo 裡
+# **沒有一行手寫的平台型別或渲染型別** —— 全部在 src/gen/ 底下,由這份設定產出。
+#
+# 輸入是相對路徑 ../hestia/proto:四個 repo 是兄弟目錄。
+# 生成結果要進版控(與 hestia/gen 同慣例):CI 與部署不必先簽出 hestia,
+# 而且契約變更會在 diff 裡看得見。
+#
+# 重跑:pnpm gen(改完 hestia 的 proto 一定要跑)
+version: v2
+clean: true
+managed:
+  enabled: false
+plugins:
+  - local: ['node', 'node_modules/@bufbuild/protoc-gen-es/bin/protoc-gen-es']
+    out: src/gen
+    opt:
+      - target=ts
+      # Node 直接跑 .ts(22.18+ 內建型別剝離),所以相對 import 要指向真的檔名。
+      # tsc 的 rewriteRelativeImportExtensions 會在編譯輸出時改回 .js。
+      - import_extension=ts
+inputs:
+  - directory: ../hestia/proto

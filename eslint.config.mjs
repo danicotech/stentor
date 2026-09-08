@@ -5,7 +5,9 @@ import prettier from 'eslint-config-prettier';
 
 export default tseslint.config(
   {
-    ignores: ['dist/**', 'node_modules/**', '.husky/**'],
+    // src/gen 是 buf 從 hestia 的 proto 生成的。它不該被風格規則管:
+    // 要改的是 proto,不是產物(專案鐵則 6)。
+    ignores: ['dist/**', 'node_modules/**', '.husky/**', 'src/gen/**'],
   },
 
   js.configs.recommended,
@@ -59,6 +61,15 @@ export default tseslint.config(
           ],
         },
       ],
+    },
+  },
+
+  // node:test 的 test() / describe() 會回 Promise,而它的設計就是不去 await 它們
+  // (runner 自己收集)。在測試檔強制 await 只會製造一堆沒有意義的 void。
+  {
+    files: ['tests/**/*.ts'],
+    rules: {
+      '@typescript-eslint/no-floating-promises': 'off',
     },
   },
 

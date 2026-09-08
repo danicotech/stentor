@@ -2,6 +2,9 @@ node_modules/
 dist/
 pnpm-lock.yaml
 
+# buf 從 hestia 的 proto 生成的。格式是產生器決定的,不是我們的風格偏好。
+src/gen/
+
 # Markdown 不交給 Prettier。
 # 它會把表格補成等寬、重排清單符號 —— 對中文文件只會製造 diff 噪音,
 # 而這些文件的可讀性本來就靠人看,不是靠對齊。
