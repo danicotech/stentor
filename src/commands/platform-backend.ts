@@ -8,18 +8,18 @@
 // 全部是 hestia 回來的數字,stentor 只負責把它們排成一則訊息。
 
 import { create } from '@bufbuild/protobuf';
+import type { MessageInitShape } from '@bufbuild/protobuf';
 import { Code, ConnectError } from '@connectrpc/connect';
 
-import { RenderResultSchema, ViewSchema } from '../gen/hestia/render/v1/render_pb.ts';
+import { FieldSchema, RenderResultSchema, ViewSchema } from '../gen/hestia/render/v1/render_pb.ts';
 import type { RenderResult, View } from '../gen/hestia/render/v1/render_pb.ts';
+import type { PrivacySettings } from '../gen/hestia/platform/v1/me_pb.ts';
 import { ActionStyle } from '../gen/hestia/render/v1/render_pb.ts';
 import type { RenderBackend } from '../gateway/dispatcher.ts';
 import type { IncomingInteraction } from '../gateway/interaction.ts';
-import { unavailableView } from '../gateway/fallbacks.ts';
 import { buildCustomId } from '../routing/custom-id.ts';
 import type { Route } from '../routing/registry.ts';
 import { actingHeaders, type PlatformClients } from '../platform/client.ts';
-import { PlatformCapabilityUnavailable, type PlatformPorts } from '../platform/ports.ts';
 import { rulesNoticeView } from '../announce/rules.ts';
 import { bindGuidanceView } from './bind.ts';
 import { formatAmount, formatDurationDays, formatLimit } from './format.ts';
@@ -38,19 +38,16 @@ function wrap(v: View, updateSource = false): RenderResult {
 
 export interface PlatformBackendDeps {
   readonly clients: PlatformClients;
-  readonly ports: PlatformPorts;
   /** 網頁前端的位址。/bind 與「還沒綁定」的指引都指向它的登入頁。 */
   readonly webBaseUrl: string;
 }
 
 export class PlatformBackend implements RenderBackend {
   readonly #clients: PlatformClients;
-  readonly #ports: PlatformPorts;
   readonly #webBaseUrl: string;
 
   constructor(deps: PlatformBackendDeps) {
     this.#clients = deps.clients;
-    this.#ports = deps.ports;
     this.#webBaseUrl = deps.webBaseUrl;
   }
 
@@ -198,10 +195,10 @@ export class PlatformBackend implements RenderBackend {
         // 純文案,不打任何 API。管理員可以把這則貼在規則頻道。
         return wrap(rulesNoticeView({ ephemeral: true }));
       case 'status': {
-        const res = await this.#ports.privacy.get(userId);
+        const res = await this.#clients.me.getPrivacy({}, { headers: actingHeaders(userId) });
         return view({
           title: '你的隱私設定',
-          fields: [{ k: '目前層級', v: describeLevel(res.level), inline: true }],
+          fields: privacyFields(res.settings),
           ephemeral: true,
         });
       }
@@ -210,10 +207,12 @@ export class PlatformBackend implements RenderBackend {
         if (level !== 'none' && level !== 'logging' && level !== 'corpus') {
           return view({ title: '不認得的層級', description: level, ephemeral: true });
         }
-        const res = await this.#ports.privacy.set(userId, level);
+        const res = await this.#clients.me.updatePrivacy(privacyUpdate(level), {
+          headers: actingHeaders(userId),
+        });
         return view({
           title: '已更新隱私設定',
-          fields: [{ k: '新的層級', v: describeLevel(res.level), inline: true }],
+          fields: privacyFields(res.settings),
           // 退出記錄 ≠ 退出計分(schemas/02)。文案寫成「完全不記錄我」是錯的,
           // 使用者會以為自己不再拿得到 XP。
           footer: '你的則數與語音時長仍然計入 XP 與點數,只是內容不再保存。',
@@ -236,9 +235,6 @@ export class PlatformBackend implements RenderBackend {
   // ── 錯誤 → 使用者看得懂的訊息 ─────────────────────────────
 
   #toView(err: unknown): RenderResult {
-    if (err instanceof PlatformCapabilityUnavailable) {
-      return wrap(unavailableView(err.capability, err.neededRpc));
-    }
     if (err instanceof ConnectError) {
       // 「這個 Discord 帳號還沒綁」是唯一一種使用者自己能解決的 FailedPrecondition,
       // 所以它不走通用文案,直接給綁定指引。
@@ -270,16 +266,42 @@ export function isActorNotLinked(err: ConnectError): boolean {
 
 // 這幾句話的精確度是有代價的:寫成「完全不記錄我」會讓使用者以為自己
 // 不再拿得到 XP,而事實相反(schemas/02:退出記錄不等於退出計分)。
-function describeLevel(level: string): string {
+//
+// 契約是**兩個各自獨立的旗標**,不是一個層級(me.proto 的 PrivacySettings)。
+// 這裡照著顯示兩個,而不是折成一個「目前層級」——折疊的那一版看不出
+// 「不留紀錄」與「不進語料」同時開著的狀態,使用者會以為自己只設了一個。
+function privacyFields(
+  settings: PrivacySettings | undefined,
+): MessageInitShape<typeof FieldSchema>[] {
+  return [
+    {
+      k: '訊息內容',
+      v: settings?.optOutLogging ? '不保存(則數與 XP 照算)' : '正常記錄',
+      inline: true,
+    },
+    {
+      k: 'AI 語料',
+      v: settings?.optOutAiCorpus ? '不納入' : '納入',
+      inline: true,
+    },
+  ];
+}
+
+// 只送這次要改的那一個旗標,不動另一個:UpdatePrivacyRequest 的欄位是
+// optional 就是為了這件事(沒帶 = 維持原值)。兩個都送等於使用者調一個
+// 會意外重設另一個。
+function privacyUpdate(level: 'none' | 'logging' | 'corpus'): {
+  optOutLogging?: boolean;
+  optOutAiCorpus?: boolean;
+} {
   switch (level) {
-    case 'none':
-      return '正常記錄';
     case 'logging':
-      return '不保存訊息內容(則數與 XP 照算)';
+      return { optOutLogging: true };
     case 'corpus':
-      return '內容不進 AI 語料';
-    default:
-      return level;
+      return { optOutAiCorpus: true };
+    case 'none':
+      // 「恢復正常記錄」是唯一該同時關掉兩個的選項:使用者選它就是要全部回到預設。
+      return { optOutLogging: false, optOutAiCorpus: false };
   }
 }
 

@@ -21,7 +21,6 @@ import { ActivityBackend, type ActivityClient } from '../src/activity/backend.ts
 import { Dispatcher } from '../src/gateway/dispatcher.ts';
 import { PlatformBackend } from '../src/commands/platform-backend.ts';
 import type { PlatformClients } from '../src/platform/client.ts';
-import { unavailablePorts } from '../src/platform/ports.ts';
 import { buildRegistry } from '../src/routing/bootstrap.ts';
 import { parseActivityRoutes } from '../src/config/routes.ts';
 import { collectCommands } from '../src/commands/register.ts';
@@ -92,7 +91,6 @@ function wire(seen: unknown[]) {
   });
   const platform = new PlatformBackend({
     clients: {} as unknown as PlatformClients,
-    ports: unavailablePorts,
     webBaseUrl: 'https://play.example',
   });
   const dispatcher = new Dispatcher({

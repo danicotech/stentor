@@ -15,7 +15,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file hestia/platform/v1/me.proto.
  */
 export const file_hestia_platform_v1_me: GenFile = /*@__PURE__*/
-  fileDesc("ChtoZXN0aWEvcGxhdGZvcm0vdjEvbWUucHJvdG8SEmhlc3RpYS5wbGF0Zm9ybS52MSITChFHZXRQcm9maWxlUmVxdWVzdCJGChJHZXRQcm9maWxlUmVzcG9uc2USMAoHcHJvZmlsZRgBIAEoCzIfLmhlc3RpYS5wbGF0Zm9ybS52MS5Vc2VyUHJvZmlsZSIlChFHZXRCYWxhbmNlUmVxdWVzdBIQCghjdXJyZW5jeRgBIAEoCSJCChJHZXRCYWxhbmNlUmVzcG9uc2USLAoHYmFsYW5jZRgBIAEoCzIbLmhlc3RpYS5wbGF0Zm9ybS52MS5CYWxhbmNlIhUKE0xpc3RCYWxhbmNlc1JlcXVlc3QiRQoUTGlzdEJhbGFuY2VzUmVzcG9uc2USLQoIYmFsYW5jZXMYASADKAsyGy5oZXN0aWEucGxhdGZvcm0udjEuQmFsYW5jZSIyChdMaXN0RW50aXRsZW1lbnRzUmVxdWVzdBIXCg9pbmNsdWRlX3Jldm9rZWQYASABKAgiUQoYTGlzdEVudGl0bGVtZW50c1Jlc3BvbnNlEjUKDGVudGl0bGVtZW50cxgBIAMoCzIfLmhlc3RpYS5wbGF0Zm9ybS52MS5FbnRpdGxlbWVudCJOChZMaXN0UmVkZW1wdGlvbnNSZXF1ZXN0EjQKBnN0YXR1cxgBIAEoDjIkLmhlc3RpYS5wbGF0Zm9ybS52MS5SZWRlbXB0aW9uU3RhdHVzIk4KF0xpc3RSZWRlbXB0aW9uc1Jlc3BvbnNlEjMKC3JlZGVtcHRpb25zGAEgAygLMh4uaGVzdGlhLnBsYXRmb3JtLnYxLlJlZGVtcHRpb24iKQoVVXBkYXRlVGltZXpvbmVSZXF1ZXN0EhAKCHRpbWV6b25lGAEgASgJIkoKFlVwZGF0ZVRpbWV6b25lUmVzcG9uc2USMAoHcHJvZmlsZRgBIAEoCzIfLmhlc3RpYS5wbGF0Zm9ybS52MS5Vc2VyUHJvZmlsZTLsBAoJTWVTZXJ2aWNlElsKCkdldFByb2ZpbGUSJS5oZXN0aWEucGxhdGZvcm0udjEuR2V0UHJvZmlsZVJlcXVlc3QaJi5oZXN0aWEucGxhdGZvcm0udjEuR2V0UHJvZmlsZVJlc3BvbnNlElsKCkdldEJhbGFuY2USJS5oZXN0aWEucGxhdGZvcm0udjEuR2V0QmFsYW5jZVJlcXVlc3QaJi5oZXN0aWEucGxhdGZvcm0udjEuR2V0QmFsYW5jZVJlc3BvbnNlEmEKDExpc3RCYWxhbmNlcxInLmhlc3RpYS5wbGF0Zm9ybS52MS5MaXN0QmFsYW5jZXNSZXF1ZXN0GiguaGVzdGlhLnBsYXRmb3JtLnYxLkxpc3RCYWxhbmNlc1Jlc3BvbnNlEm0KEExpc3RFbnRpdGxlbWVudHMSKy5oZXN0aWEucGxhdGZvcm0udjEuTGlzdEVudGl0bGVtZW50c1JlcXVlc3QaLC5oZXN0aWEucGxhdGZvcm0udjEuTGlzdEVudGl0bGVtZW50c1Jlc3BvbnNlEmoKD0xpc3RSZWRlbXB0aW9ucxIqLmhlc3RpYS5wbGF0Zm9ybS52MS5MaXN0UmVkZW1wdGlvbnNSZXF1ZXN0GisuaGVzdGlhLnBsYXRmb3JtLnYxLkxpc3RSZWRlbXB0aW9uc1Jlc3BvbnNlEmcKDlVwZGF0ZVRpbWV6b25lEikuaGVzdGlhLnBsYXRmb3JtLnYxLlVwZGF0ZVRpbWV6b25lUmVxdWVzdBoqLmhlc3RpYS5wbGF0Zm9ybS52MS5VcGRhdGVUaW1lem9uZVJlc3BvbnNlQkBaPmdpdGh1Yi5jb20vZGFuaWNvdGVjaC9oZXN0aWEvZ2VuL2hlc3RpYS9wbGF0Zm9ybS92MTtwbGF0Zm9ybXYxYgZwcm90bzM", [file_hestia_platform_v1_common]);
+  fileDesc("ChtoZXN0aWEvcGxhdGZvcm0vdjEvbWUucHJvdG8SEmhlc3RpYS5wbGF0Zm9ybS52MSITChFHZXRQcm9maWxlUmVxdWVzdCJGChJHZXRQcm9maWxlUmVzcG9uc2USMAoHcHJvZmlsZRgBIAEoCzIfLmhlc3RpYS5wbGF0Zm9ybS52MS5Vc2VyUHJvZmlsZSIlChFHZXRCYWxhbmNlUmVxdWVzdBIQCghjdXJyZW5jeRgBIAEoCSJCChJHZXRCYWxhbmNlUmVzcG9uc2USLAoHYmFsYW5jZRgBIAEoCzIbLmhlc3RpYS5wbGF0Zm9ybS52MS5CYWxhbmNlIhUKE0xpc3RCYWxhbmNlc1JlcXVlc3QiRQoUTGlzdEJhbGFuY2VzUmVzcG9uc2USLQoIYmFsYW5jZXMYASADKAsyGy5oZXN0aWEucGxhdGZvcm0udjEuQmFsYW5jZSIyChdMaXN0RW50aXRsZW1lbnRzUmVxdWVzdBIXCg9pbmNsdWRlX3Jldm9rZWQYASABKAgiUQoYTGlzdEVudGl0bGVtZW50c1Jlc3BvbnNlEjUKDGVudGl0bGVtZW50cxgBIAMoCzIfLmhlc3RpYS5wbGF0Zm9ybS52MS5FbnRpdGxlbWVudCJOChZMaXN0UmVkZW1wdGlvbnNSZXF1ZXN0EjQKBnN0YXR1cxgBIAEoDjIkLmhlc3RpYS5wbGF0Zm9ybS52MS5SZWRlbXB0aW9uU3RhdHVzIk4KF0xpc3RSZWRlbXB0aW9uc1Jlc3BvbnNlEjMKC3JlZGVtcHRpb25zGAEgAygLMh4uaGVzdGlhLnBsYXRmb3JtLnYxLlJlZGVtcHRpb24iKQoVVXBkYXRlVGltZXpvbmVSZXF1ZXN0EhAKCHRpbWV6b25lGAEgASgJIkoKFlVwZGF0ZVRpbWV6b25lUmVzcG9uc2USMAoHcHJvZmlsZRgBIAEoCzIfLmhlc3RpYS5wbGF0Zm9ybS52MS5Vc2VyUHJvZmlsZSJFCg9Qcml2YWN5U2V0dGluZ3MSFwoPb3B0X291dF9sb2dnaW5nGAEgASgIEhkKEW9wdF9vdXRfYWlfY29ycHVzGAIgASgIIhMKEUdldFByaXZhY3lSZXF1ZXN0IksKEkdldFByaXZhY3lSZXNwb25zZRI1CghzZXR0aW5ncxgBIAEoCzIjLmhlc3RpYS5wbGF0Zm9ybS52MS5Qcml2YWN5U2V0dGluZ3MifgoUVXBkYXRlUHJpdmFjeVJlcXVlc3QSHAoPb3B0X291dF9sb2dnaW5nGAEgASgISACIAQESHgoRb3B0X291dF9haV9jb3JwdXMYAiABKAhIAYgBAUISChBfb3B0X291dF9sb2dnaW5nQhQKEl9vcHRfb3V0X2FpX2NvcnB1cyJOChVVcGRhdGVQcml2YWN5UmVzcG9uc2USNQoIc2V0dGluZ3MYASABKAsyIy5oZXN0aWEucGxhdGZvcm0udjEuUHJpdmFjeVNldHRpbmdzMq8GCglNZVNlcnZpY2USWwoKR2V0UHJvZmlsZRIlLmhlc3RpYS5wbGF0Zm9ybS52MS5HZXRQcm9maWxlUmVxdWVzdBomLmhlc3RpYS5wbGF0Zm9ybS52MS5HZXRQcm9maWxlUmVzcG9uc2USWwoKR2V0QmFsYW5jZRIlLmhlc3RpYS5wbGF0Zm9ybS52MS5HZXRCYWxhbmNlUmVxdWVzdBomLmhlc3RpYS5wbGF0Zm9ybS52MS5HZXRCYWxhbmNlUmVzcG9uc2USYQoMTGlzdEJhbGFuY2VzEicuaGVzdGlhLnBsYXRmb3JtLnYxLkxpc3RCYWxhbmNlc1JlcXVlc3QaKC5oZXN0aWEucGxhdGZvcm0udjEuTGlzdEJhbGFuY2VzUmVzcG9uc2USbQoQTGlzdEVudGl0bGVtZW50cxIrLmhlc3RpYS5wbGF0Zm9ybS52MS5MaXN0RW50aXRsZW1lbnRzUmVxdWVzdBosLmhlc3RpYS5wbGF0Zm9ybS52MS5MaXN0RW50aXRsZW1lbnRzUmVzcG9uc2USagoPTGlzdFJlZGVtcHRpb25zEiouaGVzdGlhLnBsYXRmb3JtLnYxLkxpc3RSZWRlbXB0aW9uc1JlcXVlc3QaKy5oZXN0aWEucGxhdGZvcm0udjEuTGlzdFJlZGVtcHRpb25zUmVzcG9uc2USZwoOVXBkYXRlVGltZXpvbmUSKS5oZXN0aWEucGxhdGZvcm0udjEuVXBkYXRlVGltZXpvbmVSZXF1ZXN0GiouaGVzdGlhLnBsYXRmb3JtLnYxLlVwZGF0ZVRpbWV6b25lUmVzcG9uc2USWwoKR2V0UHJpdmFjeRIlLmhlc3RpYS5wbGF0Zm9ybS52MS5HZXRQcml2YWN5UmVxdWVzdBomLmhlc3RpYS5wbGF0Zm9ybS52MS5HZXRQcml2YWN5UmVzcG9uc2USZAoNVXBkYXRlUHJpdmFjeRIoLmhlc3RpYS5wbGF0Zm9ybS52MS5VcGRhdGVQcml2YWN5UmVxdWVzdBopLmhlc3RpYS5wbGF0Zm9ybS52MS5VcGRhdGVQcml2YWN5UmVzcG9uc2VCQFo+Z2l0aHViLmNvbS9kYW5pY290ZWNoL2hlc3RpYS9nZW4vaGVzdGlhL3BsYXRmb3JtL3YxO3BsYXRmb3JtdjFiBnByb3RvMw", [file_hestia_platform_v1_common]);
 
 /**
  * @generated from message hestia.platform.v1.GetProfileRequest
@@ -226,6 +226,130 @@ export const UpdateTimezoneResponseSchema: GenMessage<UpdateTimezoneResponse> = 
   messageDesc(file_hestia_platform_v1_me, 11);
 
 /**
+ * PrivacySettings 是兩級退出(schemas/02-identity.md 的 user_privacy_settings)。
+ *
+ * **兩個旗標是不同的東西,不是同一件事的兩種強度。**
+ * 使用者最常見的誤解是「我退出了就不算我的分數」——不是。兩者都不影響計分。
+ *
+ * 沒有設定過的使用者兩個旗標都是 false(表裡沒有列 = 預設值,不是錯誤)。
+ *
+ * @generated from message hestia.platform.v1.PrivacySettings
+ */
+export type PrivacySettings = Message<"hestia.platform.v1.PrivacySettings"> & {
+  /**
+   * opt_out_logging = **不記錄原始活動 / 訊息內容**。
+   *
+   * 打開之後不會存訊息原文、編輯前後的內容這類「你說了什麼」的資料。
+   *
+   * **XP 與統計計數照常累積**(schemas/02:「仍計 XP,否則退出=逃避」)。
+   * 記的是「你在 X 時間發了一則訊息」這種計數事實,不是內容本身 ——
+   * 如果退出等於不計分,那它就變成一個逃避排行榜結算的按鈕,
+   * 而不是隱私設定。這條語意寫在契約裡,呈現層必須照抄,不要自己改寫。
+   *
+   * @generated from field: bool opt_out_logging = 1;
+   */
+  optOutLogging: boolean;
+
+  /**
+   * opt_out_ai_corpus = **不納入 AI 語料**(向量庫 / 檢索 / 生成素材)。
+   *
+   * 與 opt_out_logging 各自獨立:可以「留紀錄但不進語料」,
+   * 也可以「不留紀錄」(不留紀錄時自然也沒有語料可用,schemas/12
+   * 的語料範圍跟隨訊息記錄,兩者天然一致,不需要同時打開)。
+   *
+   * @generated from field: bool opt_out_ai_corpus = 2;
+   */
+  optOutAiCorpus: boolean;
+};
+
+/**
+ * Describes the message hestia.platform.v1.PrivacySettings.
+ * Use `create(PrivacySettingsSchema)` to create a new message.
+ */
+export const PrivacySettingsSchema: GenMessage<PrivacySettings> = /*@__PURE__*/
+  messageDesc(file_hestia_platform_v1_me, 12);
+
+/**
+ * @generated from message hestia.platform.v1.GetPrivacyRequest
+ */
+export type GetPrivacyRequest = Message<"hestia.platform.v1.GetPrivacyRequest"> & {
+};
+
+/**
+ * Describes the message hestia.platform.v1.GetPrivacyRequest.
+ * Use `create(GetPrivacyRequestSchema)` to create a new message.
+ */
+export const GetPrivacyRequestSchema: GenMessage<GetPrivacyRequest> = /*@__PURE__*/
+  messageDesc(file_hestia_platform_v1_me, 13);
+
+/**
+ * @generated from message hestia.platform.v1.GetPrivacyResponse
+ */
+export type GetPrivacyResponse = Message<"hestia.platform.v1.GetPrivacyResponse"> & {
+  /**
+   * @generated from field: hestia.platform.v1.PrivacySettings settings = 1;
+   */
+  settings?: PrivacySettings | undefined;
+};
+
+/**
+ * Describes the message hestia.platform.v1.GetPrivacyResponse.
+ * Use `create(GetPrivacyResponseSchema)` to create a new message.
+ */
+export const GetPrivacyResponseSchema: GenMessage<GetPrivacyResponse> = /*@__PURE__*/
+  messageDesc(file_hestia_platform_v1_me, 14);
+
+/**
+ * UpdatePrivacyRequest 的兩個欄位**各自可設**:
+ * 只想改一個就只帶一個,沒帶的那個維持原值(不是重設為 false)。
+ * 這是 optional 的用途——proto3 沒有 optional 的話,「沒帶」與「設成 false」
+ * 在線路上完全一樣,使用者關掉一個旗標會意外把另一個也關掉。
+ *
+ * 兩個都沒帶 = InvalidArgument。寫入 RPC 靜靜地什麼都不做,
+ * 比報錯更難查(呼叫端會以為設定成功了)。
+ *
+ * @generated from message hestia.platform.v1.UpdatePrivacyRequest
+ */
+export type UpdatePrivacyRequest = Message<"hestia.platform.v1.UpdatePrivacyRequest"> & {
+  /**
+   * @generated from field: optional bool opt_out_logging = 1;
+   */
+  optOutLogging?: boolean | undefined;
+
+  /**
+   * @generated from field: optional bool opt_out_ai_corpus = 2;
+   */
+  optOutAiCorpus?: boolean | undefined;
+};
+
+/**
+ * Describes the message hestia.platform.v1.UpdatePrivacyRequest.
+ * Use `create(UpdatePrivacyRequestSchema)` to create a new message.
+ */
+export const UpdatePrivacyRequestSchema: GenMessage<UpdatePrivacyRequest> = /*@__PURE__*/
+  messageDesc(file_hestia_platform_v1_me, 15);
+
+/**
+ * @generated from message hestia.platform.v1.UpdatePrivacyResponse
+ */
+export type UpdatePrivacyResponse = Message<"hestia.platform.v1.UpdatePrivacyResponse"> & {
+  /**
+   * 更新後的**完整**設定(不只是這次改的那個),
+   * 呼叫端可以直接拿去顯示,不必自己合併。
+   *
+   * @generated from field: hestia.platform.v1.PrivacySettings settings = 1;
+   */
+  settings?: PrivacySettings | undefined;
+};
+
+/**
+ * Describes the message hestia.platform.v1.UpdatePrivacyResponse.
+ * Use `create(UpdatePrivacyResponseSchema)` to create a new message.
+ */
+export const UpdatePrivacyResponseSchema: GenMessage<UpdatePrivacyResponse> = /*@__PURE__*/
+  messageDesc(file_hestia_platform_v1_me, 16);
+
+/**
  * @generated from service hestia.platform.v1.MeService
  */
 export const MeService: GenService<{
@@ -276,6 +400,26 @@ export const MeService: GenService<{
     methodKind: "unary";
     input: typeof UpdateTimezoneRequestSchema;
     output: typeof UpdateTimezoneResponseSchema;
+  },
+  /**
+   * GetPrivacy / UpdatePrivacy 在代打白名單內(見 transport/interceptors.go):
+   * 使用者的 Discord 身分由 Discord 自己證明,從 /privacy 指令調整自己的
+   * 隱私設定是合理的 —— 而且這是唯一做得出 `/privacy optout` 的路徑。
+   *
+   * @generated from rpc hestia.platform.v1.MeService.GetPrivacy
+   */
+  getPrivacy: {
+    methodKind: "unary";
+    input: typeof GetPrivacyRequestSchema;
+    output: typeof GetPrivacyResponseSchema;
+  },
+  /**
+   * @generated from rpc hestia.platform.v1.MeService.UpdatePrivacy
+   */
+  updatePrivacy: {
+    methodKind: "unary";
+    input: typeof UpdatePrivacyRequestSchema;
+    output: typeof UpdatePrivacyResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_hestia_platform_v1_me, 0);

@@ -11,7 +11,6 @@ import { loadConfig, redact } from './config/env.ts';
 import { createLogger } from './shared/log.ts';
 import { buildRegistry } from './routing/bootstrap.ts';
 import { createPlatformClients } from './platform/client.ts';
-import { missingCapabilities, unavailablePorts } from './platform/ports.ts';
 import { PlatformBackend } from './commands/platform-backend.ts';
 import { ActivityBackend } from './activity/backend.ts';
 import { Dispatcher } from './gateway/dispatcher.ts';
@@ -19,6 +18,7 @@ import { createGateway } from './gateway/discord.ts';
 import { VoiceRecorder } from './activitylog/voice.ts';
 import { MessageRecorder } from './activitylog/messages.ts';
 import { AnnouncementDispatcher, MemoryAnnouncementSource } from './consumers/announcements.ts';
+import { AnnouncementPuller } from './consumers/puller.ts';
 import { rulesAnnouncement, RULES_CHANNEL_KEY } from './announce/rules.ts';
 import { collectCommands, registerCommands } from './commands/register.ts';
 
@@ -26,10 +26,6 @@ async function main(): Promise<void> {
   const config = loadConfig();
   const log = createLogger({ level: config.logLevel }, { service: 'stentor' });
   log.info('設定載入完成', redact(config));
-
-  for (const missing of missingCapabilities()) {
-    log.warn('hestia 尚未提供的能力,相關指令會回「還沒開放」', { capability: missing });
-  }
 
   const registry = buildRegistry(config.activityRoutes);
   log.info('路由註冊完成', { prefixes: registry.prefixes() });
@@ -50,7 +46,6 @@ async function main(): Promise<void> {
     backends: {
       platform: new PlatformBackend({
         clients,
-        ports: unavailablePorts,
         webBaseUrl: config.webBaseUrl,
       }),
       activity,
@@ -73,10 +68,17 @@ async function main(): Promise<void> {
     publisher: gateway.publisher,
     log,
   });
-  // hestia 還沒有把 outbox 事件送出來的傳輸方式(見 consumers/announcements.ts)。
-  // 先接一個記憶體來源:介面已經是最終形狀,補上傳輸時只換這一行。
+  // 開機時的規則公告走記憶體來源(它不是 outbox 事件,是本地產生的一則)。
   const announcementSource = new MemoryAnnouncementSource();
   announcements.attach(announcementSource);
+
+  // 真正的 outbox 公告從 hestia 的 NotificationService 拉。
+  // 迴圈不 await:它跑到關機為止,await 會讓 main 永遠回不來。
+  const puller = new AnnouncementPuller({
+    client: clients.notification,
+    dispatcher: announcements,
+    log,
+  });
 
   const flushTimer = setInterval(() => {
     void messages.flush();
@@ -98,9 +100,18 @@ async function main(): Promise<void> {
     await announcementSource.emit(rulesAnnouncement());
   }
 
+  // 取貨迴圈放在最後:先確定 Discord 連上、頻道可用,再開始認領事件。
+  // 反過來的話,認領到的公告會因為還沒登入而貼不出去,白白吃掉一次可見性逾時。
+  void puller.run().catch((err: unknown) => {
+    log.error('公告取貨迴圈異常結束', {
+      error: err instanceof Error ? `${err.name}: ${err.message}` : String(err),
+    });
+  });
+
   const shutdown = (signal: string): void => {
     log.info('收到關機訊號', { signal });
     clearInterval(flushTimer);
+    puller.stop();
     void messages
       .flush()
       .catch(() => undefined)

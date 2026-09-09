@@ -16,6 +16,7 @@ import { createConnectTransport } from '@connectrpc/connect-node';
 import { ActivityService } from '../gen/hestia/platform/v1/activity_pb.ts';
 import { DailyService } from '../gen/hestia/platform/v1/daily_pb.ts';
 import { MeService } from '../gen/hestia/platform/v1/me_pb.ts';
+import { NotificationService } from '../gen/hestia/platform/v1/notification_pb.ts';
 import { ShopService } from '../gen/hestia/platform/v1/shop_pb.ts';
 
 export const SERVICE_TOKEN_HEADER = 'X-Service-Token';
@@ -48,6 +49,8 @@ export interface PlatformClients {
   readonly me: Client<typeof MeService>;
   readonly shop: Client<typeof ShopService>;
   readonly activity: Client<typeof ActivityService>;
+  /** outbox → 頻道的取貨口。只有 consumers/ 會用到,不經過任何互動路徑。 */
+  readonly notification: Client<typeof NotificationService>;
 }
 
 function serviceTokenInterceptor(token: string): Interceptor {
@@ -70,5 +73,6 @@ export function createPlatformClients(config: PlatformClientConfig): PlatformCli
     me: createClient(MeService, transport),
     shop: createClient(ShopService, transport),
     activity: createClient(ActivityService, transport),
+    notification: createClient(NotificationService, transport),
   };
 }

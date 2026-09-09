@@ -16,8 +16,6 @@ import { ButtonStyle } from 'discord.js';
 import { PlatformBackend } from '../src/commands/platform-backend.ts';
 import { loginUrl } from '../src/commands/bind.ts';
 import type { PlatformClients } from '../src/platform/client.ts';
-import { PlatformCapabilityUnavailable, unavailablePorts } from '../src/platform/ports.ts';
-import type { PlatformPorts } from '../src/platform/ports.ts';
 import { renderView } from '../src/render/view.ts';
 import type { MessagePayload } from '../src/render/view.ts';
 import type { Route } from '../src/routing/registry.ts';
@@ -58,20 +56,20 @@ function fakeClients(
     me: proxy('me'),
     shop: proxy('shop'),
     activity: proxy('activity'),
+    notification: proxy('notification'),
   } as unknown as PlatformClients;
 }
 
 const WEB_BASE_URL = 'https://play.example';
 
-function backendWith(
-  impl: Record<string, Record<string, (req: unknown) => unknown>>,
-  ports: PlatformPorts = unavailablePorts,
-): { backend: PlatformBackend; recorded: Recorded[] } {
+function backendWith(impl: Record<string, Record<string, (req: unknown) => unknown>>): {
+  backend: PlatformBackend;
+  recorded: Recorded[];
+} {
   const recorded: Recorded[] = [];
   return {
     backend: new PlatformBackend({
       clients: fakeClients(impl, recorded),
-      ports,
       webBaseUrl: WEB_BASE_URL,
     }),
     recorded,
@@ -249,40 +247,72 @@ describe('/shop', () => {
   });
 });
 
-describe('hestia 還沒提供的能力', () => {
-  test('/privacy optout 回「還沒開放」而不是假裝成功', async () => {
-    const { backend } = backendWith({});
-    const result = await backend.handleCommand(
-      platformRoute('privacy'),
-      command('privacy optout', { level: 'logging' }),
-    );
-    assert.match(titleOf(result), /還沒開放/);
+describe('/privacy status 與 optout', () => {
+  test('status 顯示兩個旗標,而不是折成一個層級', async () => {
+    const { backend, recorded } = backendWith({
+      me: { getPrivacy: () => ({ settings: { optOutLogging: true, optOutAiCorpus: true } }) },
+    });
+    const result = await backend.handleCommand(platformRoute('privacy'), command('privacy status'));
+    assert.equal(recorded[0]?.rpc, 'me.getPrivacy');
+    const fields = fieldsOf(result);
+    assert.equal(fields.length, 2, '兩個旗標各自要有一欄');
+    assert.match(fields.map((f) => f.value).join('|'), /不保存/);
+    assert.match(fields.map((f) => f.value).join('|'), /不納入/);
   });
 
-  test('接上實作之後 /privacy optout 就會通(介面已經定死)', async () => {
-    const calls: string[] = [];
-    const ports: PlatformPorts = {
-      privacy: {
-        get: () => Promise.resolve({ level: 'none' as const }),
-        set: (userId, level) => {
-          calls.push(`${userId}:${level}`);
-          return Promise.resolve({ level });
-        },
-      },
-    };
-    const { backend } = backendWith({}, ports);
+  // 折成一個層級的版本看不出「兩個都開著」,使用者會以為自己只設了一個。
+  test('只開語料退出時,訊息內容那欄仍顯示正常記錄', async () => {
+    const { backend } = backendWith({
+      me: { getPrivacy: () => ({ settings: { optOutLogging: false, optOutAiCorpus: true } }) },
+    });
+    const result = await backend.handleCommand(platformRoute('privacy'), command('privacy status'));
+    const fields = fieldsOf(result);
+    assert.match(fields[0]?.value ?? '', /正常記錄/);
+    assert.match(fields[1]?.value ?? '', /不納入/);
+  });
 
-    const result = await backend.handleCommand(
+  // UpdatePrivacyRequest 的欄位是 optional 就是為了這件事:沒帶 = 維持原值。
+  // 兩個都送會讓使用者調一個而意外重設另一個。
+  test('optout corpus 只送 optOutAiCorpus,不碰 optOutLogging', async () => {
+    const { backend, recorded } = backendWith({
+      me: { updatePrivacy: () => ({ settings: { optOutLogging: false, optOutAiCorpus: true } }) },
+    });
+    await backend.handleCommand(
       platformRoute('privacy'),
       command('privacy optout', { level: 'corpus' }),
     );
-
-    assert.deepEqual(calls, ['100000000000000001:corpus']);
-    assert.match(titleOf(result), /已更新/);
+    assert.deepEqual(recorded[0]?.request, { optOutAiCorpus: true });
   });
 
-  test('unavailablePorts 丟的是有型別的例外,不是字串', async () => {
-    await assert.rejects(() => unavailablePorts.privacy.get('1'), PlatformCapabilityUnavailable);
+  test('optout logging 只送 optOutLogging', async () => {
+    const { backend, recorded } = backendWith({
+      me: { updatePrivacy: () => ({ settings: { optOutLogging: true, optOutAiCorpus: false } }) },
+    });
+    await backend.handleCommand(
+      platformRoute('privacy'),
+      command('privacy optout', { level: 'logging' }),
+    );
+    assert.deepEqual(recorded[0]?.request, { optOutLogging: true });
+  });
+
+  // 「恢復正常記錄」是唯一該同時關掉兩個的選項。
+  test('optout none 兩個都關', async () => {
+    const { backend, recorded } = backendWith({
+      me: { updatePrivacy: () => ({ settings: { optOutLogging: false, optOutAiCorpus: false } }) },
+    });
+    await backend.handleCommand(
+      platformRoute('privacy'),
+      command('privacy optout', { level: 'none' }),
+    );
+    assert.deepEqual(recorded[0]?.request, { optOutLogging: false, optOutAiCorpus: false });
+  });
+
+  test('帶的是代打 header,不是使用者 token', async () => {
+    const { backend, recorded } = backendWith({
+      me: { getPrivacy: () => ({ settings: { optOutLogging: false, optOutAiCorpus: false } }) },
+    });
+    await backend.handleCommand(platformRoute('privacy'), command('privacy status'));
+    assert.equal(recorded[0]?.headers?.['X-Acting-User'], 'discord:100000000000000001');
   });
 });
 
