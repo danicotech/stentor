@@ -9,7 +9,7 @@
 
 import { isLogLevel, type LogLevel } from '../shared/log.ts';
 import type { RouteInput } from '../routing/registry.ts';
-import { parseActivityRoutes, parseChannelMap } from './routes.ts';
+import { parseActivityRoutes } from './routes.ts';
 
 export interface Config {
   readonly discordToken: string;
@@ -26,7 +26,6 @@ export interface Config {
    */
   readonly webBaseUrl: string;
   readonly activityRoutes: readonly RouteInput[];
-  readonly channels: ReadonlyMap<string, string>;
   readonly logLevel: LogLevel;
   /**
    * 是否啟用 MESSAGE_CONTENT 特權 intent。
@@ -117,7 +116,6 @@ export function loadConfig(env: Env = process.env): Config {
     platformServiceToken: required(env, 'PLATFORM_SERVICE_TOKEN'),
     webBaseUrl,
     activityRoutes: parseActivityRoutes(optional(env, 'ACTIVITY_ROUTES')),
-    channels: parseChannelMap(optional(env, 'CHANNEL_MAP')),
     logLevel: level,
     messageContentIntent: boolean_(env, 'DISCORD_MESSAGE_CONTENT_INTENT', false),
     messageFlushMs: integer(env, 'MESSAGE_FLUSH_MS', 5000),
@@ -136,7 +134,6 @@ export function redact(config: Config): Record<string, unknown> {
     platformServiceToken: `<${config.platformServiceToken.length} chars>`,
     webBaseUrl: config.webBaseUrl,
     activityRoutes: config.activityRoutes.map((r) => `${r.prefix}=${r.baseUrl ?? ''}`),
-    channels: [...config.channels.keys()],
     logLevel: config.logLevel,
     messageContentIntent: config.messageContentIntent,
     messageFlushMs: config.messageFlushMs,

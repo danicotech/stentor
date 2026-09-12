@@ -29,7 +29,6 @@ export interface ChannelPublisher {
 export type DeliveryOutcome = 'posted' | 'duplicate' | 'unmapped' | 'empty';
 
 export interface AnnouncementDispatcherOptions {
-  readonly channels: ReadonlyMap<string, string>;
   readonly publisher: ChannelPublisher;
   readonly log: Logger;
   /** 記得幾個 event_id。太小會重貼,太大會吃記憶體;預設 5000 約 300KB。 */
@@ -37,7 +36,6 @@ export interface AnnouncementDispatcherOptions {
 }
 
 export class AnnouncementDispatcher {
-  readonly #channels: ReadonlyMap<string, string>;
   readonly #publisher: ChannelPublisher;
   readonly #log: Logger;
   readonly #dedupeSize: number;
@@ -45,7 +43,6 @@ export class AnnouncementDispatcher {
   readonly #seen = new Set<string>();
 
   constructor(options: AnnouncementDispatcherOptions) {
-    this.#channels = options.channels;
     this.#publisher = options.publisher;
     this.#log = options.log;
     this.#dedupeSize = options.dedupeSize ?? 5000;
@@ -67,10 +64,13 @@ export class AnnouncementDispatcher {
       return 'duplicate';
     }
 
-    const channelId = this.#channels.get(announcement.channelKey);
+    // 頻道由 hestia 解好了(space_channel_purposes)。這裡不再有任何對應表 ——
+    // 舊的 CHANNEL_MAP 是一份全域設定,bot 進到第二個伺服器時就沒有正確答案。
+    const channelId = announcement.channelId;
     if (!channelId) {
-      // 不是錯誤:後端可能往一個這個部署沒有對應頻道的地方發。
-      log.warn('沒有對應的頻道,略過');
+      // 不是錯誤:該用途沒設頻道,或後端無法決定是哪一個(多空間設了同一用途)。
+      // 照樣回報成已處理,讓呼叫端 Ack —— 不 Ack 的話它會永遠重新可見。
+      log.warn('後端沒有給頻道,略過');
       return 'unmapped';
     }
 

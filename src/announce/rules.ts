@@ -10,9 +10,10 @@
 
 import { create } from '@bufbuild/protobuf';
 
-import { AnnouncementSchema, ViewSchema } from '../gen/hestia/render/v1/render_pb.ts';
-import type { Announcement, View } from '../gen/hestia/render/v1/render_pb.ts';
+import { ViewSchema } from '../gen/hestia/render/v1/render_pb.ts';
+import type { View } from '../gen/hestia/render/v1/render_pb.ts';
 
+/** 規則公告的頻道用途鍵。對應表在 hestia 的 space_channel_purposes。 */
 export const RULES_CHANNEL_KEY = 'rules';
 
 export interface RulesNoticeOptions {
@@ -66,17 +67,5 @@ export function rulesNoticeView(options: RulesNoticeOptions = {}): View {
     ],
     footer: '有疑問請找管理員。',
     ephemeral: options.ephemeral ?? false,
-  });
-}
-
-/**
- * 給頻道推播用的版本。event_id 固定,所以重開機重貼時會被消費端的去重擋掉——
- * 這正是我們要的:公告只該有一則。
- */
-export function rulesAnnouncement(): Announcement {
-  return create(AnnouncementSchema, {
-    eventId: 'stentor:rules-notice:v1',
-    channelKey: RULES_CHANNEL_KEY,
-    view: rulesNoticeView({ ephemeral: false }),
   });
 }

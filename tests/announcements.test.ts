@@ -15,7 +15,6 @@ import {
   type ChannelPublisher,
 } from '../src/consumers/announcements.ts';
 import type { MessagePayload } from '../src/render/view.ts';
-import { rulesAnnouncement, RULES_CHANNEL_KEY } from '../src/announce/rules.ts';
 import { silentLogger } from '../src/shared/log.ts';
 
 class FakePublisher implements ChannelPublisher {
@@ -32,15 +31,15 @@ class FakePublisher implements ChannelPublisher {
   }
 }
 
-const channels = new Map([
-  ['announcements', '111111111111111111'],
-  [RULES_CHANNEL_KEY, '222222222222222222'],
-]);
+const ANNOUNCE_CHANNEL = '111111111111111111';
 
-function announcement(eventId: string, channelKey = 'announcements') {
+// 頻道由 hestia 解好後隨公告一起送(space_channel_purposes)。
+// channelId 空字串 = 後端沒給,閘道略過。
+function announcement(eventId: string, channelId = ANNOUNCE_CHANNEL) {
   return create(AnnouncementSchema, {
     eventId,
-    channelKey,
+    channelKey: 'announcements',
+    channelId,
     view: create(ViewSchema, { title: '開賽了', description: '快來看' }),
   });
 }
@@ -48,7 +47,7 @@ function announcement(eventId: string, channelKey = 'announcements') {
 describe('公告推播', () => {
   test('邏輯頻道名對到 channel id,渲染成 embed', async () => {
     const publisher = new FakePublisher();
-    const dispatcher = new AnnouncementDispatcher({ channels, publisher, log: silentLogger });
+    const dispatcher = new AnnouncementDispatcher({ publisher, log: silentLogger });
 
     assert.equal(await dispatcher.handle(announcement('evt-1')), 'posted');
     assert.equal(publisher.posts[0]?.channelId, '111111111111111111');
@@ -57,29 +56,30 @@ describe('公告推播', () => {
 
   test('至少一次投遞:同一個 event_id 只會貼一次', async () => {
     const publisher = new FakePublisher();
-    const dispatcher = new AnnouncementDispatcher({ channels, publisher, log: silentLogger });
+    const dispatcher = new AnnouncementDispatcher({ publisher, log: silentLogger });
 
     assert.equal(await dispatcher.handle(announcement('evt-1')), 'posted');
     assert.equal(await dispatcher.handle(announcement('evt-1')), 'duplicate');
     assert.equal(publisher.posts.length, 1);
   });
 
-  test('沒對應的頻道就略過,不是錯誤', async () => {
+  test('後端沒給頻道就略過,不是錯誤', async () => {
     const publisher = new FakePublisher();
-    const dispatcher = new AnnouncementDispatcher({ channels, publisher, log: silentLogger });
+    const dispatcher = new AnnouncementDispatcher({ publisher, log: silentLogger });
 
-    assert.equal(await dispatcher.handle(announcement('evt-2', 'nowhere')), 'unmapped');
+    assert.equal(await dispatcher.handle(announcement('evt-2', '')), 'unmapped');
     assert.equal(publisher.posts.length, 0);
   });
 
   test('頻道推播一律公開,即使描述說 ephemeral', async () => {
     const publisher = new FakePublisher();
-    const dispatcher = new AnnouncementDispatcher({ channels, publisher, log: silentLogger });
+    const dispatcher = new AnnouncementDispatcher({ publisher, log: silentLogger });
 
     await dispatcher.handle(
       create(AnnouncementSchema, {
         eventId: 'evt-3',
         channelKey: 'announcements',
+        channelId: ANNOUNCE_CHANNEL,
         view: create(ViewSchema, { title: 'x', ephemeral: true }),
       }),
     );
@@ -89,7 +89,6 @@ describe('公告推播', () => {
   test('去重表滿了會淘汰最舊的,不會無限長大', async () => {
     const publisher = new FakePublisher();
     const dispatcher = new AnnouncementDispatcher({
-      channels,
       publisher,
       log: silentLogger,
       dedupeSize: 2,
@@ -105,7 +104,7 @@ describe('公告推播', () => {
 
   test('一則貼不出去不會讓整個消費者停掉', async () => {
     const publisher = new FakePublisher();
-    const dispatcher = new AnnouncementDispatcher({ channels, publisher, log: silentLogger });
+    const dispatcher = new AnnouncementDispatcher({ publisher, log: silentLogger });
     const source = new MemoryAnnouncementSource();
     dispatcher.attach(source);
 
@@ -119,7 +118,7 @@ describe('公告推播', () => {
 
   test('退訂之後不再收到事件', async () => {
     const publisher = new FakePublisher();
-    const dispatcher = new AnnouncementDispatcher({ channels, publisher, log: silentLogger });
+    const dispatcher = new AnnouncementDispatcher({ publisher, log: silentLogger });
     const source = new MemoryAnnouncementSource();
     const unsubscribe = dispatcher.attach(source);
 
@@ -127,33 +126,5 @@ describe('公告推播', () => {
     await source.emit(announcement('x'));
     assert.equal(publisher.posts.length, 0);
     assert.equal(source.subscriberCount, 0);
-  });
-});
-
-describe('規則頻道公告', () => {
-  test('文案有講到語音、訊息內容的條件、以及退出方式', async () => {
-    const publisher = new FakePublisher();
-    const dispatcher = new AnnouncementDispatcher({ channels, publisher, log: silentLogger });
-
-    await dispatcher.handle(rulesAnnouncement());
-
-    const embed = publisher.posts[0]?.payload.embeds[0] as {
-      fields: { name: string; value: string }[];
-    };
-    const text = embed.fields.map((f) => `${f.name} ${f.value}`).join('\n');
-    assert.match(text, /語音/);
-    assert.match(text, /只有在管理員開啟記錄的頻道/);
-    assert.match(text, /privacy optout/);
-    // 退出記錄 != 退出計分。文案寫成「完全不記錄我」會讓人以為自己放棄了 XP。
-    assert.match(text, /退出記錄不等於退出計分/);
-    assert.match(text, /完全不受影響/);
-  });
-
-  test('event_id 固定,所以重開機重貼會被去重擋掉', async () => {
-    const publisher = new FakePublisher();
-    const dispatcher = new AnnouncementDispatcher({ channels, publisher, log: silentLogger });
-
-    assert.equal(await dispatcher.handle(rulesAnnouncement()), 'posted');
-    assert.equal(await dispatcher.handle(rulesAnnouncement()), 'duplicate');
   });
 });

@@ -18,7 +18,7 @@ import type { MessagePayload } from '../src/render/view.ts';
 import { silentLogger } from '../src/shared/log.ts';
 
 const CHANNEL_KEY = 'announcements';
-const channels = new Map([[CHANNEL_KEY, '111111111111111111']]);
+const CHANNEL_ID = '111111111111111111';
 
 class FakePublisher implements ChannelPublisher {
   readonly posts: string[] = [];
@@ -32,17 +32,20 @@ class FakePublisher implements ChannelPublisher {
   }
 }
 
-function announcement(eventId: string, channelKey = CHANNEL_KEY): Announcement {
+// channelId 由 hestia 解好隨公告送來;空字串 = 後端沒給(該用途沒設頻道,
+// 或多個空間設了同一用途而無法決定),閘道略過。
+function announcement(eventId: string, channelId = CHANNEL_ID): Announcement {
   return create(AnnouncementSchema, {
     eventId,
-    channelKey,
+    channelKey: CHANNEL_KEY,
+    channelId,
     view: create(ViewSchema, { title: '開賽了', description: '快來看' }),
   });
 }
 
 /** 沒有 view 的公告(壞資料):dispatcher 回 'empty'。 */
 function viewless(eventId: string): Announcement {
-  return create(AnnouncementSchema, { eventId, channelKey: CHANNEL_KEY });
+  return create(AnnouncementSchema, { eventId, channelKey: CHANNEL_KEY, channelId: CHANNEL_ID });
 }
 
 interface FakeNotificationClient {
@@ -87,7 +90,6 @@ function harness(
   };
 
   const dispatcher = new AnnouncementDispatcher({
-    channels,
     publisher,
     log: silentLogger,
   });
@@ -132,7 +134,6 @@ describe('公告取貨迴圈', () => {
     const acked: string[][] = [];
     let attempt = 0;
     const dispatcher = new AnnouncementDispatcher({
-      channels,
       publisher: {
         post: (channelId) => {
           attempt += 1;
@@ -164,8 +165,8 @@ describe('公告取貨迴圈', () => {
 
   // 不 Ack 的話它會永遠重新可見,佇列從此清不掉——而重試一百次也不會
   // 生出那個頻道。
-  test('沒有對應頻道的公告要 Ack 掉,不能讓它無限重試', async () => {
-    const h = harness([[announcement('orphan', '這個部署沒有這個頻道')]]);
+  test('後端沒給頻道的公告要 Ack 掉,不能讓它無限重試', async () => {
+    const h = harness([[announcement('orphan', '')]]);
     await h.puller.tick();
     assert.equal(h.publisher.posts.length, 0);
     assert.deepEqual(h.acked, [['orphan']]);

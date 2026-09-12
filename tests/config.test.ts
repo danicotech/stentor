@@ -65,14 +65,20 @@ describe('設定載入', () => {
     assert.throws(() => loadConfig({ ...base, MESSAGE_BATCH_SIZE: '-1' }), ConfigError);
   });
 
-  test('活動路由與頻道對應一起載入', () => {
+  test('活動路由載入', () => {
     const config = loadConfig({
       ...base,
       ACTIVITY_ROUTES: 'summer-cup=http://themis:8080;public',
-      CHANNEL_MAP: 'rules=222222222222222222',
     });
     assert.equal(config.activityRoutes[0]?.prefix, 'summer-cup');
-    assert.equal(config.channels.get('rules'), '222222222222222222');
+  });
+
+  // CHANNEL_MAP 已移除:頻道對應存在 hestia 的 space_channel_purposes,
+  // 由公告自己帶著 channelId 過來。留著一個會被靜靜忽略的環境變數,
+  // 只會讓人設了以為有效。
+  test('殘留的 CHANNEL_MAP 不會被讀取', () => {
+    const config = loadConfig({ ...base, CHANNEL_MAP: 'rules=222222222222222222' });
+    assert.ok(!('channels' in config));
   });
 });
 

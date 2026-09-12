@@ -81,13 +81,6 @@ export function parseActivityRoutes(raw: string): readonly RouteInput[] {
     });
 }
 
-/**
- * `CHANNEL_MAP` 的解析:邏輯頻道名 → Discord channel id。
- *
- *   CHANNEL_MAP=announcements=123456789,rules=987654321
- *
- * 後端只知道 `announcements` 這種名字,不知道 channel id。頻道搬家是部署設定的事。
- */
 export function parseChannelMap(raw: string): ReadonlyMap<string, string> {
   const map = new Map<string, string>();
   for (const entry of raw.split(',')) {

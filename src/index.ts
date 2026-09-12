@@ -17,9 +17,8 @@ import { Dispatcher } from './gateway/dispatcher.ts';
 import { createGateway } from './gateway/discord.ts';
 import { VoiceRecorder } from './activitylog/voice.ts';
 import { MessageRecorder } from './activitylog/messages.ts';
-import { AnnouncementDispatcher, MemoryAnnouncementSource } from './consumers/announcements.ts';
+import { AnnouncementDispatcher } from './consumers/announcements.ts';
 import { AnnouncementPuller } from './consumers/puller.ts';
-import { rulesAnnouncement, RULES_CHANNEL_KEY } from './announce/rules.ts';
 import { collectCommands, registerCommands } from './commands/register.ts';
 
 async function main(): Promise<void> {
@@ -64,13 +63,13 @@ async function main(): Promise<void> {
   const gateway = createGateway({ config, dispatcher, voice, messages, log });
 
   const announcements = new AnnouncementDispatcher({
-    channels: config.channels,
     publisher: gateway.publisher,
     log,
   });
-  // 開機時的規則公告走記憶體來源(它不是 outbox 事件,是本地產生的一則)。
-  const announcementSource = new MemoryAnnouncementSource();
-  announcements.attach(announcementSource);
+  // 開機時自動貼規則公告的那段已移除:頻道對應現在存在 hestia 的
+  // space_channel_purposes,閘道沒有(也不該有)查表的能力。
+  // 文案仍在 announce/rules.ts,由 /privacy notice 使用;要自動貼的話
+  // 應該由 hestia 發一則帶頻道的 outbox 事件,而不是讓閘道自己決定貼哪裡。
 
   // 真正的 outbox 公告從 hestia 的 NotificationService 拉。
   // 迴圈不 await:它跑到關機為止,await 會讓 main 永遠回不來。
@@ -94,10 +93,6 @@ async function main(): Promise<void> {
     await registerCommands(config, collected.commands, log);
   } else {
     log.error('指令有問題,這輪不註冊(避免蓋掉線上正確的定義)');
-  }
-
-  if (config.channels.has(RULES_CHANNEL_KEY)) {
-    await announcementSource.emit(rulesAnnouncement());
   }
 
   // 取貨迴圈放在最後:先確定 Discord 連上、頻道可用,再開始認領事件。
