@@ -22,6 +22,7 @@ import type { Route } from '../routing/registry.ts';
 import { actingHeaders, type PlatformClients } from '../platform/client.ts';
 import { rulesNoticeView } from '../announce/rules.ts';
 import { bindGuidanceView } from './bind.ts';
+import { boxListView, gameResultView, giveawayListView, petListView } from './play.ts';
 import { formatAmount, formatDurationDays, formatLimit } from './format.ts';
 
 /** 平台佔用的前綴。加新前綴要同時加 handler,否則 registry 會有名無實。 */
@@ -33,6 +34,10 @@ export const PLATFORM_PREFIXES = [
   'privacy',
   'profile',
   'leaderboard',
+  'game',
+  'box',
+  'giveaway',
+  'pet',
 ] as const;
 export type PlatformPrefix = (typeof PLATFORM_PREFIXES)[number];
 
@@ -75,6 +80,14 @@ export class PlatformBackend implements RenderBackend {
           return await this.#profile(interaction);
         case 'leaderboard':
           return await this.#leaderboard(interaction);
+        case 'game':
+          return await this.#game(interaction);
+        case 'box':
+          return await this.#box(interaction, sub);
+        case 'giveaway':
+          return await this.#giveaway(interaction, sub);
+        case 'pet':
+          return await this.#pet(interaction, sub);
         case 'privacy':
           return await this.#privacy(interaction, sub);
         default:
@@ -277,6 +290,102 @@ ${formatAmount(x.xp)} XP`,
         .join('\n'),
       ephemeral: true,
     });
+  }
+
+  // ── /game ─────────────────────────────────────────────────
+
+  async #game(interaction: IncomingInteraction): Promise<RenderResult> {
+    const headers = actingHeaders(interaction.actor.discordUserId);
+    const stake = Number.parseInt(interaction.options['stake'] ?? '0', 10);
+    const res = await this.#clients.play.playGame(
+      {
+        game: interaction.options['kind'] ?? '',
+        choice: interaction.options['choice'] ?? '',
+        stake: BigInt(Number.isFinite(stake) ? stake : 0),
+        // 冪等鍵用 interaction id:同一次點擊重送只會結算一次。
+        // 遊戲是最容易被連點的地方,而連點兩次扣兩次錢是收不回來的。
+        idempotencyKey: `discord-interaction:${interaction.id}`,
+      },
+      { headers },
+    );
+    return gameResultView(res);
+  }
+
+  // ── /box ──────────────────────────────────────────────────
+
+  async #box(interaction: IncomingInteraction, sub: string): Promise<RenderResult> {
+    const headers = actingHeaders(interaction.actor.discordUserId);
+    if (sub === 'open') {
+      const res = await this.#clients.play.openLootBox(
+        {
+          boxPublicId: interaction.options['id'] ?? '',
+          idempotencyKey: `discord-interaction:${interaction.id}`,
+        },
+        { headers },
+      );
+      return view({
+        title: `開了 ${res.boxName}`,
+        fields: [
+          { k: '抽到', v: res.rewardName, inline: true },
+          ...(res.amount > 0n ? [{ k: '金額', v: formatAmount(res.amount), inline: true }] : []),
+          { k: '餘額', v: formatAmount(res.balance), inline: true },
+        ],
+        footer: `seed ${res.seed.slice(0, 12)}…`,
+        ephemeral: true,
+      });
+    }
+    const res = await this.#clients.play.listLootBoxes({}, { headers });
+    return boxListView(res.boxes);
+  }
+
+  // ── /giveaway ─────────────────────────────────────────────
+
+  async #giveaway(interaction: IncomingInteraction, sub: string): Promise<RenderResult> {
+    const headers = actingHeaders(interaction.actor.discordUserId);
+    if (sub === 'join') {
+      await this.#clients.play.enterGiveaway(
+        { giveawayPublicId: interaction.options['id'] ?? '' },
+        { headers },
+      );
+      return view({
+        title: '報名成功',
+        description: '開獎時如果中了,獎品會自動入帳。',
+        ephemeral: true,
+      });
+    }
+    const res = await this.#clients.play.listGiveaways({}, { headers });
+    return giveawayListView(res.giveaways);
+  }
+
+  // ── /pet ──────────────────────────────────────────────────
+
+  async #pet(interaction: IncomingInteraction, sub: string): Promise<RenderResult> {
+    const headers = actingHeaders(interaction.actor.discordUserId);
+    switch (sub) {
+      case 'deploy':
+        await this.#clients.play.deployPet(
+          { petPublicId: interaction.options['id'] ?? '' },
+          { headers },
+        );
+        return view({
+          title: '換好出戰寵物了',
+          description: '牠從現在起會跟著你一起漲 XP。',
+          ephemeral: true,
+        });
+      case 'rename':
+        await this.#clients.play.renamePet(
+          {
+            petPublicId: interaction.options['id'] ?? '',
+            nickname: interaction.options['nickname'] ?? '',
+          },
+          { headers },
+        );
+        return view({ title: '改好名字了', ephemeral: true });
+      default: {
+        const res = await this.#clients.play.listPets({}, { headers });
+        return petListView(res.pets);
+      }
+    }
   }
 
   // ── /privacy ──────────────────────────────────────────────

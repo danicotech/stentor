@@ -17,6 +17,7 @@ import { ActivityService } from '../gen/hestia/platform/v1/activity_pb.ts';
 import { DailyService } from '../gen/hestia/platform/v1/daily_pb.ts';
 import { MeService } from '../gen/hestia/platform/v1/me_pb.ts';
 import { NotificationService } from '../gen/hestia/platform/v1/notification_pb.ts';
+import { PlayService } from '../gen/hestia/platform/v1/play_pb.ts';
 import { ShopService } from '../gen/hestia/platform/v1/shop_pb.ts';
 
 export const SERVICE_TOKEN_HEADER = 'X-Service-Token';
@@ -51,6 +52,8 @@ export interface PlatformClients {
   readonly activity: Client<typeof ActivityService>;
   /** outbox → 頻道的取貨口。只有 consumers/ 會用到,不經過任何互動路徑。 */
   readonly notification: Client<typeof NotificationService>;
+  /** 小遊戲 / 開箱 / 抽獎 / 寵物(schemas/25)。 */
+  readonly play: Client<typeof PlayService>;
 }
 
 function serviceTokenInterceptor(token: string): Interceptor {
@@ -74,5 +77,6 @@ export function createPlatformClients(config: PlatformClientConfig): PlatformCli
     shop: createClient(ShopService, transport),
     activity: createClient(ActivityService, transport),
     notification: createClient(NotificationService, transport),
+    play: createClient(PlayService, transport),
   };
 }

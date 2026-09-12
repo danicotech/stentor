@@ -37,6 +37,130 @@ export function platformCommands(): readonly RESTPostAPIApplicationCommandsJSONB
       description: '看你的等級、點數、寵物與徽章',
     },
     {
+      // 賠率寫在說明裡不是客套:玩家看得到取捨,才不是被藏起來的抽成。
+      name: 'game',
+      description: '小遊戲。四款的期望值都低於 1,玩越多越虧',
+      options: [
+        {
+          name: 'kind',
+          description: '玩哪一款',
+          type: ApplicationCommandOptionType.String,
+          required: true,
+          choices: [
+            { name: '猜拳(贏 1.9 倍,平手退回)', value: 'rps' },
+            { name: '比大小(贏 1.95 倍)', value: 'dice' },
+            { name: '猜數字 1-100(中 50 倍)', value: 'guess' },
+            { name: '輪盤(顏色 1.95 倍 / 數字 35 倍)', value: 'roulette' },
+          ],
+        },
+        {
+          name: 'choice',
+          description: 'rock/paper/scissors、big/small、1-100、red/black 或 0-36',
+          type: ApplicationCommandOptionType.String,
+          required: true,
+        },
+        {
+          name: 'stake',
+          description: '押多少點',
+          type: ApplicationCommandOptionType.Integer,
+          required: true,
+          min_value: 1,
+        },
+      ],
+    },
+    {
+      name: 'box',
+      description: '開箱',
+      options: [
+        {
+          name: 'list',
+          description: '看有哪些箱子',
+          type: ApplicationCommandOptionType.Subcommand,
+        },
+        {
+          name: 'open',
+          description: '開一個箱子',
+          type: ApplicationCommandOptionType.Subcommand,
+          options: [
+            {
+              name: 'id',
+              description: '箱子的 id(用 /box list 查)',
+              type: ApplicationCommandOptionType.String,
+              required: true,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      name: 'giveaway',
+      description: '抽獎活動',
+      options: [
+        {
+          name: 'list',
+          description: '看進行中的抽獎',
+          type: ApplicationCommandOptionType.Subcommand,
+        },
+        {
+          name: 'join',
+          description: '報名參加',
+          type: ApplicationCommandOptionType.Subcommand,
+          options: [
+            {
+              name: 'id',
+              description: '抽獎的 id(用 /giveaway list 查)',
+              type: ApplicationCommandOptionType.String,
+              required: true,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      name: 'pet',
+      description: '寵物',
+      options: [
+        {
+          name: 'list',
+          description: '看你的寵物',
+          type: ApplicationCommandOptionType.Subcommand,
+        },
+        {
+          name: 'deploy',
+          description: '換出戰寵物(出戰中的才會跟著你一起漲 XP)',
+          type: ApplicationCommandOptionType.Subcommand,
+          options: [
+            {
+              name: 'id',
+              description: '寵物的 id(用 /pet list 查)',
+              type: ApplicationCommandOptionType.String,
+              required: true,
+            },
+          ],
+        },
+        {
+          name: 'rename',
+          description: '幫寵物取名字',
+          type: ApplicationCommandOptionType.Subcommand,
+          options: [
+            {
+              name: 'id',
+              description: '寵物的 id',
+              type: ApplicationCommandOptionType.String,
+              required: true,
+            },
+            {
+              name: 'nickname',
+              description: '新名字(留空 = 還原成原本的名稱)',
+              type: ApplicationCommandOptionType.String,
+              required: false,
+              max_length: 24,
+            },
+          ],
+        },
+      ],
+    },
+    {
       name: 'leaderboard',
       description: '本社群的經驗值排行榜',
       options: [
