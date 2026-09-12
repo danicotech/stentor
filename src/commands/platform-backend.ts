@@ -25,7 +25,15 @@ import { bindGuidanceView } from './bind.ts';
 import { formatAmount, formatDurationDays, formatLimit } from './format.ts';
 
 /** 平台佔用的前綴。加新前綴要同時加 handler,否則 registry 會有名無實。 */
-export const PLATFORM_PREFIXES = ['daily', 'balance', 'shop', 'bind', 'privacy'] as const;
+export const PLATFORM_PREFIXES = [
+  'daily',
+  'balance',
+  'shop',
+  'bind',
+  'privacy',
+  'profile',
+  'leaderboard',
+] as const;
 export type PlatformPrefix = (typeof PLATFORM_PREFIXES)[number];
 
 function view(init: Parameters<typeof create<typeof ViewSchema>>[1]): RenderResult {
@@ -63,6 +71,10 @@ export class PlatformBackend implements RenderBackend {
           return await this.#shop(interaction);
         case 'bind':
           return this.#bind();
+        case 'profile':
+          return await this.#profile(interaction);
+        case 'leaderboard':
+          return await this.#leaderboard(interaction);
         case 'privacy':
           return await this.#privacy(interaction, sub);
         default:
@@ -184,6 +196,87 @@ export class PlatformBackend implements RenderBackend {
   // 不打任何 API:綁定發生在使用者自己的瀏覽器裡(見 commands/bind.ts)。
   #bind(): RenderResult {
     return wrap(bindGuidanceView(this.#webBaseUrl));
+  }
+
+  // ── /profile ──────────────────────────────────────────────
+
+  async #profile(interaction: IncomingInteraction): Promise<RenderResult> {
+    const headers = actingHeaders(interaction.actor.discordUserId);
+    const res = await this.#clients.me.getSummary({}, { headers });
+
+    const fields: MessageInitShape<typeof FieldSchema>[] = [];
+
+    // 等級放最前面:那是這個指令存在的主要理由。
+    for (const x of res.xp) {
+      fields.push({
+        k: `${x.communityName} 等級`,
+        v: `**Lv.${x.level}**  ${progressBar(x.xpIntoLevel, x.xpForLevel)}
+${formatAmount(x.xp)} XP`,
+        inline: false,
+      });
+    }
+    for (const b of res.balances) {
+      fields.push({ k: b.currency, v: formatAmount(b.amount), inline: true });
+    }
+    if (res.pet) {
+      fields.push({
+        k: '出戰寵物',
+        v: `${res.pet.name}(Lv.${res.pet.level})`,
+        inline: true,
+      });
+    }
+    if (res.badges.length > 0) {
+      fields.push({
+        k: `徽章 ×${res.badges.length}`,
+        v: res.badges.map((b) => b.name).join('、'),
+        inline: false,
+      });
+    }
+
+    // 一個什麼都還沒有的新人,看到空白的檔案會以為指令壞了。
+    // 明確告訴他下一步做什麼,比什麼都不說好。
+    if (fields.length === 0) {
+      fields.push({ k: '還沒有紀錄', v: '打一次 `/daily` 就會開始累積。', inline: false });
+    }
+
+    return view({
+      title: `${res.profile?.displayName ?? '你'} 的檔案`,
+      fields,
+      ephemeral: true,
+    });
+  }
+
+  // ── /leaderboard ──────────────────────────────────────────
+
+  async #leaderboard(interaction: IncomingInteraction): Promise<RenderResult> {
+    const headers = actingHeaders(interaction.actor.discordUserId);
+    const raw = interaction.options['count'];
+    const count = raw === undefined ? 0 : Number.parseInt(raw, 10);
+    const res = await this.#clients.me.getLeaderboard(
+      {
+        // 社群由後端從呼叫者的所在推定;M1 只有一個社群,先留空。
+        communityPublicId: '',
+        limit: Number.isFinite(count) ? count : 0,
+      },
+      { headers },
+    );
+
+    if (res.entries.length === 0) {
+      return view({
+        title: '排行榜',
+        description: '還沒有人累積經驗值。打一次 `/daily` 就是第一名。',
+        ephemeral: true,
+      });
+    }
+    return view({
+      title: '經驗值排行榜',
+      description: res.entries
+        .map(
+          (e) => `${medal(e.rank)} **${e.displayName}** — Lv.${e.level}(${formatAmount(e.xp)} XP)`,
+        )
+        .join('\n'),
+      ephemeral: true,
+    });
   }
 
   // ── /privacy ──────────────────────────────────────────────
@@ -353,5 +446,31 @@ function connectErrorView(err: ConnectError): View {
         description: '這次沒有成功,請稍後再試一次。',
         ephemeral: true,
       });
+  }
+}
+
+// progressBar 畫本級進度。純文字而不是圖片:Discord 的 embed 不吃內嵌圖表,
+// 而且文字在手機上也讀得到。
+//
+// span 為 0(table 曲線走到表尾,沒有下一級)時視為滿格 —— 顯示 0/0 會讓人
+// 以為壞了。
+function progressBar(into: bigint, span: bigint): string {
+  const width = 10;
+  if (span <= 0n) return '█'.repeat(width) + ' MAX';
+  const ratio = Number(into) / Number(span);
+  const filled = Math.max(0, Math.min(width, Math.round(ratio * width)));
+  return `${'█'.repeat(filled)}${'░'.repeat(width - filled)} ${into}/${span}`;
+}
+
+function medal(rank: number): string {
+  switch (rank) {
+    case 1:
+      return '🥇';
+    case 2:
+      return '🥈';
+    case 3:
+      return '🥉';
+    default:
+      return `\`${String(rank).padStart(2, ' ')}.\``;
   }
 }

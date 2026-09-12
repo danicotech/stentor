@@ -7,6 +7,8 @@
 
 import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
+import type { Timestamp } from "@bufbuild/protobuf/wkt";
+import { file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
 import type { Balance, Entitlement, Redemption, RedemptionStatus, UserProfile } from "./common_pb.ts";
 import { file_hestia_platform_v1_common } from "./common_pb.ts";
 import type { Message } from "@bufbuild/protobuf";
@@ -15,7 +17,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file hestia/platform/v1/me.proto.
  */
 export const file_hestia_platform_v1_me: GenFile = /*@__PURE__*/
-  fileDesc("ChtoZXN0aWEvcGxhdGZvcm0vdjEvbWUucHJvdG8SEmhlc3RpYS5wbGF0Zm9ybS52MSITChFHZXRQcm9maWxlUmVxdWVzdCJGChJHZXRQcm9maWxlUmVzcG9uc2USMAoHcHJvZmlsZRgBIAEoCzIfLmhlc3RpYS5wbGF0Zm9ybS52MS5Vc2VyUHJvZmlsZSIlChFHZXRCYWxhbmNlUmVxdWVzdBIQCghjdXJyZW5jeRgBIAEoCSJCChJHZXRCYWxhbmNlUmVzcG9uc2USLAoHYmFsYW5jZRgBIAEoCzIbLmhlc3RpYS5wbGF0Zm9ybS52MS5CYWxhbmNlIhUKE0xpc3RCYWxhbmNlc1JlcXVlc3QiRQoUTGlzdEJhbGFuY2VzUmVzcG9uc2USLQoIYmFsYW5jZXMYASADKAsyGy5oZXN0aWEucGxhdGZvcm0udjEuQmFsYW5jZSIyChdMaXN0RW50aXRsZW1lbnRzUmVxdWVzdBIXCg9pbmNsdWRlX3Jldm9rZWQYASABKAgiUQoYTGlzdEVudGl0bGVtZW50c1Jlc3BvbnNlEjUKDGVudGl0bGVtZW50cxgBIAMoCzIfLmhlc3RpYS5wbGF0Zm9ybS52MS5FbnRpdGxlbWVudCJOChZMaXN0UmVkZW1wdGlvbnNSZXF1ZXN0EjQKBnN0YXR1cxgBIAEoDjIkLmhlc3RpYS5wbGF0Zm9ybS52MS5SZWRlbXB0aW9uU3RhdHVzIk4KF0xpc3RSZWRlbXB0aW9uc1Jlc3BvbnNlEjMKC3JlZGVtcHRpb25zGAEgAygLMh4uaGVzdGlhLnBsYXRmb3JtLnYxLlJlZGVtcHRpb24iKQoVVXBkYXRlVGltZXpvbmVSZXF1ZXN0EhAKCHRpbWV6b25lGAEgASgJIkoKFlVwZGF0ZVRpbWV6b25lUmVzcG9uc2USMAoHcHJvZmlsZRgBIAEoCzIfLmhlc3RpYS5wbGF0Zm9ybS52MS5Vc2VyUHJvZmlsZSJFCg9Qcml2YWN5U2V0dGluZ3MSFwoPb3B0X291dF9sb2dnaW5nGAEgASgIEhkKEW9wdF9vdXRfYWlfY29ycHVzGAIgASgIIhMKEUdldFByaXZhY3lSZXF1ZXN0IksKEkdldFByaXZhY3lSZXNwb25zZRI1CghzZXR0aW5ncxgBIAEoCzIjLmhlc3RpYS5wbGF0Zm9ybS52MS5Qcml2YWN5U2V0dGluZ3MifgoUVXBkYXRlUHJpdmFjeVJlcXVlc3QSHAoPb3B0X291dF9sb2dnaW5nGAEgASgISACIAQESHgoRb3B0X291dF9haV9jb3JwdXMYAiABKAhIAYgBAUISChBfb3B0X291dF9sb2dnaW5nQhQKEl9vcHRfb3V0X2FpX2NvcnB1cyJOChVVcGRhdGVQcml2YWN5UmVzcG9uc2USNQoIc2V0dGluZ3MYASABKAsyIy5oZXN0aWEucGxhdGZvcm0udjEuUHJpdmFjeVNldHRpbmdzMq8GCglNZVNlcnZpY2USWwoKR2V0UHJvZmlsZRIlLmhlc3RpYS5wbGF0Zm9ybS52MS5HZXRQcm9maWxlUmVxdWVzdBomLmhlc3RpYS5wbGF0Zm9ybS52MS5HZXRQcm9maWxlUmVzcG9uc2USWwoKR2V0QmFsYW5jZRIlLmhlc3RpYS5wbGF0Zm9ybS52MS5HZXRCYWxhbmNlUmVxdWVzdBomLmhlc3RpYS5wbGF0Zm9ybS52MS5HZXRCYWxhbmNlUmVzcG9uc2USYQoMTGlzdEJhbGFuY2VzEicuaGVzdGlhLnBsYXRmb3JtLnYxLkxpc3RCYWxhbmNlc1JlcXVlc3QaKC5oZXN0aWEucGxhdGZvcm0udjEuTGlzdEJhbGFuY2VzUmVzcG9uc2USbQoQTGlzdEVudGl0bGVtZW50cxIrLmhlc3RpYS5wbGF0Zm9ybS52MS5MaXN0RW50aXRsZW1lbnRzUmVxdWVzdBosLmhlc3RpYS5wbGF0Zm9ybS52MS5MaXN0RW50aXRsZW1lbnRzUmVzcG9uc2USagoPTGlzdFJlZGVtcHRpb25zEiouaGVzdGlhLnBsYXRmb3JtLnYxLkxpc3RSZWRlbXB0aW9uc1JlcXVlc3QaKy5oZXN0aWEucGxhdGZvcm0udjEuTGlzdFJlZGVtcHRpb25zUmVzcG9uc2USZwoOVXBkYXRlVGltZXpvbmUSKS5oZXN0aWEucGxhdGZvcm0udjEuVXBkYXRlVGltZXpvbmVSZXF1ZXN0GiouaGVzdGlhLnBsYXRmb3JtLnYxLlVwZGF0ZVRpbWV6b25lUmVzcG9uc2USWwoKR2V0UHJpdmFjeRIlLmhlc3RpYS5wbGF0Zm9ybS52MS5HZXRQcml2YWN5UmVxdWVzdBomLmhlc3RpYS5wbGF0Zm9ybS52MS5HZXRQcml2YWN5UmVzcG9uc2USZAoNVXBkYXRlUHJpdmFjeRIoLmhlc3RpYS5wbGF0Zm9ybS52MS5VcGRhdGVQcml2YWN5UmVxdWVzdBopLmhlc3RpYS5wbGF0Zm9ybS52MS5VcGRhdGVQcml2YWN5UmVzcG9uc2VCQFo+Z2l0aHViLmNvbS9kYW5pY290ZWNoL2hlc3RpYS9nZW4vaGVzdGlhL3BsYXRmb3JtL3YxO3BsYXRmb3JtdjFiBnByb3RvMw", [file_hestia_platform_v1_common]);
+  fileDesc("ChtoZXN0aWEvcGxhdGZvcm0vdjEvbWUucHJvdG8SEmhlc3RpYS5wbGF0Zm9ybS52MSITChFHZXRQcm9maWxlUmVxdWVzdCJGChJHZXRQcm9maWxlUmVzcG9uc2USMAoHcHJvZmlsZRgBIAEoCzIfLmhlc3RpYS5wbGF0Zm9ybS52MS5Vc2VyUHJvZmlsZSIlChFHZXRCYWxhbmNlUmVxdWVzdBIQCghjdXJyZW5jeRgBIAEoCSJCChJHZXRCYWxhbmNlUmVzcG9uc2USLAoHYmFsYW5jZRgBIAEoCzIbLmhlc3RpYS5wbGF0Zm9ybS52MS5CYWxhbmNlIhUKE0xpc3RCYWxhbmNlc1JlcXVlc3QiRQoUTGlzdEJhbGFuY2VzUmVzcG9uc2USLQoIYmFsYW5jZXMYASADKAsyGy5oZXN0aWEucGxhdGZvcm0udjEuQmFsYW5jZSIyChdMaXN0RW50aXRsZW1lbnRzUmVxdWVzdBIXCg9pbmNsdWRlX3Jldm9rZWQYASABKAgiUQoYTGlzdEVudGl0bGVtZW50c1Jlc3BvbnNlEjUKDGVudGl0bGVtZW50cxgBIAMoCzIfLmhlc3RpYS5wbGF0Zm9ybS52MS5FbnRpdGxlbWVudCJOChZMaXN0UmVkZW1wdGlvbnNSZXF1ZXN0EjQKBnN0YXR1cxgBIAEoDjIkLmhlc3RpYS5wbGF0Zm9ybS52MS5SZWRlbXB0aW9uU3RhdHVzIk4KF0xpc3RSZWRlbXB0aW9uc1Jlc3BvbnNlEjMKC3JlZGVtcHRpb25zGAEgAygLMh4uaGVzdGlhLnBsYXRmb3JtLnYxLlJlZGVtcHRpb24iKQoVVXBkYXRlVGltZXpvbmVSZXF1ZXN0EhAKCHRpbWV6b25lGAEgASgJIkoKFlVwZGF0ZVRpbWV6b25lUmVzcG9uc2USMAoHcHJvZmlsZRgBIAEoCzIfLmhlc3RpYS5wbGF0Zm9ybS52MS5Vc2VyUHJvZmlsZSJFCg9Qcml2YWN5U2V0dGluZ3MSFwoPb3B0X291dF9sb2dnaW5nGAEgASgIEhkKEW9wdF9vdXRfYWlfY29ycHVzGAIgASgIIhMKEUdldFByaXZhY3lSZXF1ZXN0IksKEkdldFByaXZhY3lSZXNwb25zZRI1CghzZXR0aW5ncxgBIAEoCzIjLmhlc3RpYS5wbGF0Zm9ybS52MS5Qcml2YWN5U2V0dGluZ3MifgoUVXBkYXRlUHJpdmFjeVJlcXVlc3QSHAoPb3B0X291dF9sb2dnaW5nGAEgASgISACIAQESHgoRb3B0X291dF9haV9jb3JwdXMYAiABKAhIAYgBAUISChBfb3B0X291dF9sb2dnaW5nQhQKEl9vcHRfb3V0X2FpX2NvcnB1cyJOChVVcGRhdGVQcml2YWN5UmVzcG9uc2USNQoIc2V0dGluZ3MYASABKAsyIy5oZXN0aWEucGxhdGZvcm0udjEuUHJpdmFjeVNldHRpbmdzIhMKEUdldFN1bW1hcnlSZXF1ZXN0Io4CChJHZXRTdW1tYXJ5UmVzcG9uc2USMAoHcHJvZmlsZRgBIAEoCzIfLmhlc3RpYS5wbGF0Zm9ybS52MS5Vc2VyUHJvZmlsZRItCghiYWxhbmNlcxgCIAMoCzIbLmhlc3RpYS5wbGF0Zm9ybS52MS5CYWxhbmNlEisKAnhwGAMgAygLMh8uaGVzdGlhLnBsYXRmb3JtLnYxLkNvbW11bml0eVhwEjAKA3BldBgEIAEoCzIeLmhlc3RpYS5wbGF0Zm9ybS52MS5QZXRTdW1tYXJ5SACIAQESMAoGYmFkZ2VzGAUgAygLMiAuaGVzdGlhLnBsYXRmb3JtLnYxLkJhZGdlU3VtbWFyeUIGCgRfcGV0IooBCgtDb21tdW5pdHlYcBIbChNjb21tdW5pdHlfcHVibGljX2lkGAEgASgJEhYKDmNvbW11bml0eV9uYW1lGAIgASgJEgoKAnhwGAMgASgDEg0KBWxldmVsGAQgASgFEhUKDXhwX2ludG9fbGV2ZWwYBSABKAMSFAoMeHBfZm9yX2xldmVsGAYgASgDImoKClBldFN1bW1hcnkSEQoJcHVibGljX2lkGAEgASgJEgwKBG5hbWUYAiABKAkSEAoIaWNvbl91cmwYAyABKAkSDgoGcmFyaXR5GAQgASgJEgoKAnhwGAUgASgDEg0KBWxldmVsGAYgASgFIoIBCgxCYWRnZVN1bW1hcnkSEQoJcHVibGljX2lkGAEgASgJEgwKBG5hbWUYAiABKAkSDgoGcmFyaXR5GAMgASgJEhAKCGljb25fdXJsGAQgASgJEi8KC2FjcXVpcmVkX2F0GAUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCJDChVHZXRMZWFkZXJib2FyZFJlcXVlc3QSGwoTY29tbXVuaXR5X3B1YmxpY19pZBgBIAEoCRINCgVsaW1pdBgCIAEoBSJPChZHZXRMZWFkZXJib2FyZFJlc3BvbnNlEjUKB2VudHJpZXMYASADKAsyJC5oZXN0aWEucGxhdGZvcm0udjEuTGVhZGVyYm9hcmRFbnRyeSJpChBMZWFkZXJib2FyZEVudHJ5EgwKBHJhbmsYASABKAUSFgoOdXNlcl9wdWJsaWNfaWQYAiABKAkSFAoMZGlzcGxheV9uYW1lGAMgASgJEgoKAnhwGAQgASgDEg0KBWxldmVsGAUgASgFMvUHCglNZVNlcnZpY2USWwoKR2V0UHJvZmlsZRIlLmhlc3RpYS5wbGF0Zm9ybS52MS5HZXRQcm9maWxlUmVxdWVzdBomLmhlc3RpYS5wbGF0Zm9ybS52MS5HZXRQcm9maWxlUmVzcG9uc2USWwoKR2V0U3VtbWFyeRIlLmhlc3RpYS5wbGF0Zm9ybS52MS5HZXRTdW1tYXJ5UmVxdWVzdBomLmhlc3RpYS5wbGF0Zm9ybS52MS5HZXRTdW1tYXJ5UmVzcG9uc2USZwoOR2V0TGVhZGVyYm9hcmQSKS5oZXN0aWEucGxhdGZvcm0udjEuR2V0TGVhZGVyYm9hcmRSZXF1ZXN0GiouaGVzdGlhLnBsYXRmb3JtLnYxLkdldExlYWRlcmJvYXJkUmVzcG9uc2USWwoKR2V0QmFsYW5jZRIlLmhlc3RpYS5wbGF0Zm9ybS52MS5HZXRCYWxhbmNlUmVxdWVzdBomLmhlc3RpYS5wbGF0Zm9ybS52MS5HZXRCYWxhbmNlUmVzcG9uc2USYQoMTGlzdEJhbGFuY2VzEicuaGVzdGlhLnBsYXRmb3JtLnYxLkxpc3RCYWxhbmNlc1JlcXVlc3QaKC5oZXN0aWEucGxhdGZvcm0udjEuTGlzdEJhbGFuY2VzUmVzcG9uc2USbQoQTGlzdEVudGl0bGVtZW50cxIrLmhlc3RpYS5wbGF0Zm9ybS52MS5MaXN0RW50aXRsZW1lbnRzUmVxdWVzdBosLmhlc3RpYS5wbGF0Zm9ybS52MS5MaXN0RW50aXRsZW1lbnRzUmVzcG9uc2USagoPTGlzdFJlZGVtcHRpb25zEiouaGVzdGlhLnBsYXRmb3JtLnYxLkxpc3RSZWRlbXB0aW9uc1JlcXVlc3QaKy5oZXN0aWEucGxhdGZvcm0udjEuTGlzdFJlZGVtcHRpb25zUmVzcG9uc2USZwoOVXBkYXRlVGltZXpvbmUSKS5oZXN0aWEucGxhdGZvcm0udjEuVXBkYXRlVGltZXpvbmVSZXF1ZXN0GiouaGVzdGlhLnBsYXRmb3JtLnYxLlVwZGF0ZVRpbWV6b25lUmVzcG9uc2USWwoKR2V0UHJpdmFjeRIlLmhlc3RpYS5wbGF0Zm9ybS52MS5HZXRQcml2YWN5UmVxdWVzdBomLmhlc3RpYS5wbGF0Zm9ybS52MS5HZXRQcml2YWN5UmVzcG9uc2USZAoNVXBkYXRlUHJpdmFjeRIoLmhlc3RpYS5wbGF0Zm9ybS52MS5VcGRhdGVQcml2YWN5UmVxdWVzdBopLmhlc3RpYS5wbGF0Zm9ybS52MS5VcGRhdGVQcml2YWN5UmVzcG9uc2VCQFo+Z2l0aHViLmNvbS9kYW5pY290ZWNoL2hlc3RpYS9nZW4vaGVzdGlhL3BsYXRmb3JtL3YxO3BsYXRmb3JtdjFiBnByb3RvMw", [file_google_protobuf_timestamp, file_hestia_platform_v1_common]);
 
 /**
  * @generated from message hestia.platform.v1.GetProfileRequest
@@ -350,6 +352,280 @@ export const UpdatePrivacyResponseSchema: GenMessage<UpdatePrivacyResponse> = /*
   messageDesc(file_hestia_platform_v1_me, 16);
 
 /**
+ * GetSummary 一次回 /profile 要顯示的全部內容。
+ *
+ * 為什麼不讓呼叫端打四支:Discord 的互動視窗只有 3 秒,四次往返很容易超時,
+ * 而超時的表現是指令「沒有反應」—— 使用者只會再按一次,然後再超時一次。
+ *
+ * @generated from message hestia.platform.v1.GetSummaryRequest
+ */
+export type GetSummaryRequest = Message<"hestia.platform.v1.GetSummaryRequest"> & {
+};
+
+/**
+ * Describes the message hestia.platform.v1.GetSummaryRequest.
+ * Use `create(GetSummaryRequestSchema)` to create a new message.
+ */
+export const GetSummaryRequestSchema: GenMessage<GetSummaryRequest> = /*@__PURE__*/
+  messageDesc(file_hestia_platform_v1_me, 17);
+
+/**
+ * @generated from message hestia.platform.v1.GetSummaryResponse
+ */
+export type GetSummaryResponse = Message<"hestia.platform.v1.GetSummaryResponse"> & {
+  /**
+   * @generated from field: hestia.platform.v1.UserProfile profile = 1;
+   */
+  profile?: UserProfile | undefined;
+
+  /**
+   * @generated from field: repeated hestia.platform.v1.Balance balances = 2;
+   */
+  balances: Balance[];
+
+  /**
+   * 每個社群一列。沒有參加任何社群時是空的。
+   *
+   * @generated from field: repeated hestia.platform.v1.CommunityXp xp = 3;
+   */
+  xp: CommunityXp[];
+
+  /**
+   * 出戰中的寵物;沒有就不帶(不是錯誤,多數人一開始都沒有)。
+   *
+   * @generated from field: optional hestia.platform.v1.PetSummary pet = 4;
+   */
+  pet?: PetSummary | undefined;
+
+  /**
+   * 最近取得的徽章,**不是全部** —— embed 有長度上限,全部送會被截掉。
+   *
+   * @generated from field: repeated hestia.platform.v1.BadgeSummary badges = 5;
+   */
+  badges: BadgeSummary[];
+};
+
+/**
+ * Describes the message hestia.platform.v1.GetSummaryResponse.
+ * Use `create(GetSummaryResponseSchema)` to create a new message.
+ */
+export const GetSummaryResponseSchema: GenMessage<GetSummaryResponse> = /*@__PURE__*/
+  messageDesc(file_hestia_platform_v1_me, 18);
+
+/**
+ * CommunityXp 是一個人在某社群的經驗與等級。
+ *
+ * 等級與進度由後端算好,不讓呈現層自己算:曲線存在 xp_rulesets.config,
+ * 各端各算一次就會有兩份實作,而其中一份遲早與資料庫不同步 ——
+ * 「網頁說我 12 級,bot 說我 11 級」是查不出來的那種問題。
+ *
+ * @generated from message hestia.platform.v1.CommunityXp
+ */
+export type CommunityXp = Message<"hestia.platform.v1.CommunityXp"> & {
+  /**
+   * @generated from field: string community_public_id = 1;
+   */
+  communityPublicId: string;
+
+  /**
+   * @generated from field: string community_name = 2;
+   */
+  communityName: string;
+
+  /**
+   * @generated from field: int64 xp = 3;
+   */
+  xp: bigint;
+
+  /**
+   * @generated from field: int32 level = 4;
+   */
+  level: number;
+
+  /**
+   * 本級已累積 / 本級總共需要。兩個一起才畫得出進度條。
+   *
+   * @generated from field: int64 xp_into_level = 5;
+   */
+  xpIntoLevel: bigint;
+
+  /**
+   * @generated from field: int64 xp_for_level = 6;
+   */
+  xpForLevel: bigint;
+};
+
+/**
+ * Describes the message hestia.platform.v1.CommunityXp.
+ * Use `create(CommunityXpSchema)` to create a new message.
+ */
+export const CommunityXpSchema: GenMessage<CommunityXp> = /*@__PURE__*/
+  messageDesc(file_hestia_platform_v1_me, 19);
+
+/**
+ * @generated from message hestia.platform.v1.PetSummary
+ */
+export type PetSummary = Message<"hestia.platform.v1.PetSummary"> & {
+  /**
+   * @generated from field: string public_id = 1;
+   */
+  publicId: string;
+
+  /**
+   * 主人取的暱稱;沒取就是物品定義的名稱。
+   *
+   * @generated from field: string name = 2;
+   */
+  name: string;
+
+  /**
+   * @generated from field: string icon_url = 3;
+   */
+  iconUrl: string;
+
+  /**
+   * @generated from field: string rarity = 4;
+   */
+  rarity: string;
+
+  /**
+   * @generated from field: int64 xp = 5;
+   */
+  xp: bigint;
+
+  /**
+   * @generated from field: int32 level = 6;
+   */
+  level: number;
+};
+
+/**
+ * Describes the message hestia.platform.v1.PetSummary.
+ * Use `create(PetSummarySchema)` to create a new message.
+ */
+export const PetSummarySchema: GenMessage<PetSummary> = /*@__PURE__*/
+  messageDesc(file_hestia_platform_v1_me, 20);
+
+/**
+ * BadgeSummary 是一枚徽章。徽章不是獨立系統,是 category='badge' 的物品。
+ *
+ * @generated from message hestia.platform.v1.BadgeSummary
+ */
+export type BadgeSummary = Message<"hestia.platform.v1.BadgeSummary"> & {
+  /**
+   * @generated from field: string public_id = 1;
+   */
+  publicId: string;
+
+  /**
+   * @generated from field: string name = 2;
+   */
+  name: string;
+
+  /**
+   * @generated from field: string rarity = 3;
+   */
+  rarity: string;
+
+  /**
+   * @generated from field: string icon_url = 4;
+   */
+  iconUrl: string;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp acquired_at = 5;
+   */
+  acquiredAt?: Timestamp | undefined;
+};
+
+/**
+ * Describes the message hestia.platform.v1.BadgeSummary.
+ * Use `create(BadgeSummarySchema)` to create a new message.
+ */
+export const BadgeSummarySchema: GenMessage<BadgeSummary> = /*@__PURE__*/
+  messageDesc(file_hestia_platform_v1_me, 21);
+
+/**
+ * @generated from message hestia.platform.v1.GetLeaderboardRequest
+ */
+export type GetLeaderboardRequest = Message<"hestia.platform.v1.GetLeaderboardRequest"> & {
+  /**
+   * 社群的 public_id。
+   *
+   * @generated from field: string community_public_id = 1;
+   */
+  communityPublicId: string;
+
+  /**
+   * 取前幾名;<= 0 或超過上限一律夾到預設值(不為了顯示參數讓指令失敗)。
+   *
+   * @generated from field: int32 limit = 2;
+   */
+  limit: number;
+};
+
+/**
+ * Describes the message hestia.platform.v1.GetLeaderboardRequest.
+ * Use `create(GetLeaderboardRequestSchema)` to create a new message.
+ */
+export const GetLeaderboardRequestSchema: GenMessage<GetLeaderboardRequest> = /*@__PURE__*/
+  messageDesc(file_hestia_platform_v1_me, 22);
+
+/**
+ * @generated from message hestia.platform.v1.GetLeaderboardResponse
+ */
+export type GetLeaderboardResponse = Message<"hestia.platform.v1.GetLeaderboardResponse"> & {
+  /**
+   * @generated from field: repeated hestia.platform.v1.LeaderboardEntry entries = 1;
+   */
+  entries: LeaderboardEntry[];
+};
+
+/**
+ * Describes the message hestia.platform.v1.GetLeaderboardResponse.
+ * Use `create(GetLeaderboardResponseSchema)` to create a new message.
+ */
+export const GetLeaderboardResponseSchema: GenMessage<GetLeaderboardResponse> = /*@__PURE__*/
+  messageDesc(file_hestia_platform_v1_me, 23);
+
+/**
+ * @generated from message hestia.platform.v1.LeaderboardEntry
+ */
+export type LeaderboardEntry = Message<"hestia.platform.v1.LeaderboardEntry"> & {
+  /**
+   * @generated from field: int32 rank = 1;
+   */
+  rank: number;
+
+  /**
+   * @generated from field: string user_public_id = 2;
+   */
+  userPublicId: string;
+
+  /**
+   * @generated from field: string display_name = 3;
+   */
+  displayName: string;
+
+  /**
+   * @generated from field: int64 xp = 4;
+   */
+  xp: bigint;
+
+  /**
+   * @generated from field: int32 level = 5;
+   */
+  level: number;
+};
+
+/**
+ * Describes the message hestia.platform.v1.LeaderboardEntry.
+ * Use `create(LeaderboardEntrySchema)` to create a new message.
+ */
+export const LeaderboardEntrySchema: GenMessage<LeaderboardEntry> = /*@__PURE__*/
+  messageDesc(file_hestia_platform_v1_me, 24);
+
+/**
  * @generated from service hestia.platform.v1.MeService
  */
 export const MeService: GenService<{
@@ -360,6 +636,27 @@ export const MeService: GenService<{
     methodKind: "unary";
     input: typeof GetProfileRequestSchema;
     output: typeof GetProfileResponseSchema;
+  },
+  /**
+   * 個人檔案總覽(/profile)。在代打白名單內:使用者的 Discord 身分由
+   * Discord 自己證明,看自己的檔案是合理的。
+   *
+   * @generated from rpc hestia.platform.v1.MeService.GetSummary
+   */
+  getSummary: {
+    methodKind: "unary";
+    input: typeof GetSummaryRequestSchema;
+    output: typeof GetSummaryResponseSchema;
+  },
+  /**
+   * 排行榜。純讀取、不涉個資以外的資訊,同樣可代打。
+   *
+   * @generated from rpc hestia.platform.v1.MeService.GetLeaderboard
+   */
+  getLeaderboard: {
+    methodKind: "unary";
+    input: typeof GetLeaderboardRequestSchema;
+    output: typeof GetLeaderboardResponseSchema;
   },
   /**
    * @generated from rpc hestia.platform.v1.MeService.GetBalance

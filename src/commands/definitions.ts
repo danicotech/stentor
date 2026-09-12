@@ -33,6 +33,24 @@ export function platformCommands(): readonly RESTPostAPIApplicationCommandsJSONB
       description: '看看商店裡有什麼',
     },
     {
+      name: 'profile',
+      description: '看你的等級、點數、寵物與徽章',
+    },
+    {
+      name: 'leaderboard',
+      description: '本社群的經驗值排行榜',
+      options: [
+        {
+          name: 'count',
+          description: '要看前幾名(預設 10)',
+          type: ApplicationCommandOptionType.Integer,
+          required: false,
+          min_value: 1,
+          max_value: 25,
+        },
+      ],
+    },
+    {
       // 刻意沒有參數:綁定是「用 Discord 登入網頁」,不是輸入一組碼。
       // 這個指令只負責把人帶到登入頁。
       name: 'bind',
